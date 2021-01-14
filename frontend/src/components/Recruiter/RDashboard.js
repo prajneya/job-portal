@@ -8,7 +8,7 @@ import { faStar, faSortNumericUp, faSortNumericDown, faSearch } from '@fortaweso
 import Slider from '@material-ui/core/Slider';
 
 import Topbar from './Topbar.js';
-import { getJobs } from './../../actions/jobAction.js';
+import { getMyJobs } from './../../actions/jobAction.js';
 
 class RDashboard extends Component {
 
@@ -25,7 +25,7 @@ class RDashboard extends Component {
   }
 
   componentDidMount = () => {
-    this.props.getJobs();
+    this.props.getMyJobs({"email": this.props.auth.user.email});
   };
 
   sort_by_key = (array, key) => {
@@ -119,7 +119,6 @@ class RDashboard extends Component {
   };
 
   filterSort = () => {
-    console.log("filter sort called", this.state.asc)
     var sortkey = document.getElementById("sortBy").value;
     this.setState({
       displayjobs: this.sort_by_key(this.state.displayjobs, sortkey)
@@ -294,7 +293,7 @@ class RDashboard extends Component {
 
 RDashboard.propTypes = {
   logoutUser: PropTypes.func.isRequired,
-  getJobs: PropTypes.func.isRequired,
+  getMyJobs: PropTypes.func.isRequired,
   auth: PropTypes.object.isRequired
 };
 const mapStateToProps = state => ({
@@ -303,5 +302,5 @@ const mapStateToProps = state => ({
 });
 export default connect(
   mapStateToProps,
-  { getJobs, logoutUser }
+  { getMyJobs, logoutUser }
 )(RDashboard);

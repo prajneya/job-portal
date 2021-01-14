@@ -45,6 +45,18 @@ router.get("/getAll", (req, res) => {
     .catch(err => console.log(err));
 });
 
+// @route   POST api/jobs/getMyJobs
+// @desc    Get Jobs of a recruiter
+// @access  Public
+router.post("/getMyJobs", (req, res) => {
+
+  const date = new Date();
+  Job.find({active: true, email: req.body.email, deadline: { $gt: date }})
+    .sort({posting: -1})
+    .then(jobs => res.json(jobs))
+    .catch(err => console.log(err));
+});
+
 // @route   POST api/jobs/searchJobs
 // @desc    Fuzzy Search on Jobs
 // @access  Public

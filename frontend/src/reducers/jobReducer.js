@@ -1,4 +1,4 @@
-import { GET_JOBS, GET_SKILLS, JOBS_LOADING } from "../actions/types";
+import { GET_JOBS, GET_RECRUITER_JOBS, GET_SKILLS, JOBS_LOADING } from "../actions/types";
 
 const initialState = {
   job: [],
@@ -9,6 +9,12 @@ const initialState = {
 export default function(state = initialState, action) {
   switch (action.type) {
     case GET_JOBS:
+      return {
+        ...state,
+        job: action.payload,
+        loading: false
+      };
+    case GET_RECRUITER_JOBS:
       return {
         ...state,
         job: action.payload,
