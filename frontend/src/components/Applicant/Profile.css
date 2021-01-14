@@ -1,0 +1,53 @@
+.profile-card{
+	position: relative;
+	min-height: 50rem;
+	background: white;
+	box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+	border-radius: 15px;
+	overflow: scroll;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.profile-card::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.profile-card {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.settings-tabs{
+	background-color: #e8efff;
+	border-style: none;
+	border-radius: 10px; 
+}
+
+.settings-header{
+	font-size: 1.5rem;
+	width: 13rem;
+}
+
+.settings-active{
+	background-color: #b5ccff;
+}
+
+.settings-item:hover{
+	background-color: #b5ccff;
+	cursor: pointer;
+}
+
+.image-upload img{
+	height: 128px;
+	width: 128px;
+	border-radius: 50%;
+}
+
+.half-width{
+	width: 48%
+}
+
+.quarter-width{
+	width: 24%;
+}

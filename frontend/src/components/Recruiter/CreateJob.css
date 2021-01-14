@@ -1,0 +1,28 @@
+.gui-input{
+	background: transparent !important;
+	border-style: none !important;
+	font-weight: bold;
+	font-size: 2rem;
+	padding: 2px;
+}
+
+.gui-text-area{
+	background: transparent !important;
+	border-style: none !important;
+	padding: 1rem 0;
+	width: 100%;
+}
+
+.gui-other-input{
+	background: transparent !important;
+	padding: 1rem 0;
+	width: 100%;
+}
+
+.date-input{
+	height: 3rem;
+}
+
+.salary-input{
+	border-radius: 0 !important
+}
