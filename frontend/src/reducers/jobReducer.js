@@ -1,7 +1,8 @@
-import { GET_JOBS, JOBS_LOADING } from "../actions/types";
+import { GET_JOBS, GET_SKILLS, JOBS_LOADING } from "../actions/types";
 
 const initialState = {
   job: [],
+  skills: [],
   loading: false
 };
 
@@ -11,6 +12,12 @@ export default function(state = initialState, action) {
       return {
         ...state,
         job: action.payload,
+        loading: false
+      };
+    case GET_SKILLS:
+      return {
+        ...state,
+        skills: action.payload,
         loading: false
       };
     case JOBS_LOADING:

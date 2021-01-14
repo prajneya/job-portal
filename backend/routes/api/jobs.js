@@ -6,6 +6,7 @@ const keys = require("../../config/keys");
 
 // Load Job Model
 const Job = require('../../models/Jobs').Job;
+const Skill = require('../../models/Jobs').Skill;
 
 // @route   POST api/jobs/add
 // @desc    Add Job
@@ -66,6 +67,16 @@ router.post("/searchJobs", (req, res) => {
     Job.aggregate(pipeline)
         .then(jobs => res.json(jobs))
         .catch(err => console.log(err));
+});
+
+// @route   GET api/jobs/getSkills
+// @desc    Get all Skills
+// @access  Public
+router.get("/getSkills", (req, res) => {
+
+  Skill.find()
+    .then(skills => res.json(skills))
+    .catch(err => console.log(err));
 });
 
 module.exports = router;

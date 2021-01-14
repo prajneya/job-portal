@@ -72,6 +72,19 @@ const jobSchema = new schema({
 	}
 })
 
+// Create Skill Schema
+const skillSchema = new schema({
+	value: {
+		type: Number,
+		required: true
+	},
+	label: {
+		type: String,
+		required: true
+	}
+})
+
 module.exports = {
-	Job: mongoose.model('jobs', jobSchema)
+	Job: mongoose.model('jobs', jobSchema),
+	Skill: mongoose.model('skills', skillSchema)
 }
