@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faStar, faSortNumericUp, faSortNumericDown, faSearch } from '@fortawesome/free-solid-svg-icons'
 import Slider from '@material-ui/core/Slider';
 
+import Swal from 'sweetalert2';
 import Topbar from './Topbar.js';
 import { getJobs } from './../../actions/jobAction.js';
 import './Dashboard.css';
@@ -171,6 +172,53 @@ class Dashboard extends Component {
       });
   };
 
+  applyJob = async (jobId) => {
+    const { value: text } = await Swal.fire({
+                              title: 'Apply to Job',
+                              input: 'textarea',
+                              inputLabel: 'Write your Statement of Purpose',
+                              inputPlaceholder: 'Should not exceed 250 words...',
+                              inputAttributes: {
+                                'aria-label': 'Type your message here',
+                                'height': '500'
+                              },
+                              confirmButtonText: 'Submit Application',
+                              showCancelButton: true,
+                              focusConfirm: false,
+                              width: '64em',
+                              backdrop: `rgba(0,0,0,0.5)`,
+                              background: `rgba(255,255,255, 1)`,
+                              customClass: {
+                                      title: 'text-info',
+                                      content: 'text-left text-white',
+                                      confirmButton: 'game-button bg-info',
+                                    }
+                            })
+    if(text){
+      if(text.split(" ").length > 250){
+        await Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Something went wrong!',
+          footer: 'Your SOP should not exceed 250 words.'
+        })
+        return;
+      }
+
+      const applicationData = {
+        applicantId: this.props.auth.user.id,
+        jobId: jobId,
+        sop: text
+      }
+
+      axios
+        .post("/api/applicant/addApplication", applicationData)
+        .then(res => {
+          Swal.fire("Submitted");
+        });
+    }
+  }
+
 
   render() {
 
@@ -277,7 +325,7 @@ class Dashboard extends Component {
                       <div className="action-buttons mt-4">
                         <div className="row">
                           <div className="col-md-6 mt-2">
-                            <button className="btn btn-primary py-2 px-3 w-100 d-inline-block"><strong>Apply Now</strong></button>
+                            <button className="btn btn-primary py-2 px-3 w-100 d-inline-block" onClick={() => this.applyJob(job_item['_id'])}><strong>Apply Now</strong></button>
                           </div>
                           <div className="col-md-6 mt-2">
                             <button className="btn light-button py-2 px-3 w-100 d-inline-block">View More</button>

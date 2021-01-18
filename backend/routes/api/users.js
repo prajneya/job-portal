@@ -52,7 +52,10 @@ const { errors, isValid } = validateRegisterInput(req.body);
                   education: [],
                   skills: [],
                   resume: "",
-                  profilePic: "reaper.png"
+                  profilePic: "reaper.png",
+                  currApplications: [],
+                  rating: -1,
+                  ratedBy: 0
                 });
 
                 newApplicantDetail

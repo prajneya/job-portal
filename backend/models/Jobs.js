@@ -84,7 +84,36 @@ const skillSchema = new schema({
 	}
 })
 
+// Create Application Schema
+const applicationSchema = new schema({
+	applicantId: {
+		type: String, 
+		required: true
+	},
+	jobId: {
+		type: String, 
+		required: true
+	},
+	sop: {
+		type: String, 
+		required: true
+	},
+	status: {
+		type: Number,
+		default: 0
+	},
+	createdAt: {
+		type: Date,
+		default: Date.now
+	},
+	lastUpdated: {
+		type: Date,
+		default: Date.now
+	},
+})
+
 module.exports = {
 	Job: mongoose.model('jobs', jobSchema),
-	Skill: mongoose.model('skills', skillSchema)
+	Skill: mongoose.model('skills', skillSchema),
+	Application: mongoose.model('applications', applicationSchema)
 }

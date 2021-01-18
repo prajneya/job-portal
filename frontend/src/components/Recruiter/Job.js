@@ -4,13 +4,13 @@ import { connect } from "react-redux";
 import { logoutUser } from "../../actions/authActions";
 import axios from "axios";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faStar, faSortNumericUp, faSortNumericDown, faSearch } from '@fortawesome/free-solid-svg-icons'
+import { faStar, faSortNumericUp, faSortNumericDown, faSearch, faHeart, faShareAlt } from '@fortawesome/free-solid-svg-icons'
 import Slider from '@material-ui/core/Slider';
 
 import Topbar from './Topbar.js';
 import { getMyJobs } from './../../actions/jobAction.js';
 
-class RDashboard extends Component {
+class Job extends Component {
 
   constructor() {
       super();
@@ -169,10 +169,6 @@ class RDashboard extends Component {
       });
   };
 
-  jobCallback = (jobId) => {
-    this.props.history.push('/recruiter/job/'+jobId)
-  }
-
 
   render() {
 
@@ -252,37 +248,125 @@ class RDashboard extends Component {
               </div> 
               <div className="jobs-listing mt-5">
                 <div className="row">
-                  {this.state.displayjobs.map(job_item => ( 
-                  <div className="col-lg-4 my-2">
-                    <div className="job-card p-3">
-                      <div className="job-image"><img src={"../images/"+job_item['image']} alt="job"/></div>
-                      <br/>
-                      <div className="ellipsis">{job_item['rating'] === -1 ? "UNRATED" : job_item['rating']} &nbsp;<i><FontAwesomeIcon icon={faStar} color="#ffd500" /></i></div>
-                      <div className="recruiter-name">{job_item['name']}</div>
-                      <div className="job-header"><strong>{job_item['title']}</strong></div>
-                      <div className="recruiter-name"><span style={{"color": "green"}}>Posted at: {job_item['posting']}</span></div>
-                      <br/>
-                      <p className="text-secondary">{job_item['description']} </p>
-                      <div className="tags">
-                        <div className="tag mr-2 mt-2 px-3 py-1">{job_item['currApplications']} Applicants</div>
-                        <div className="tag mr-2 mt-2 px-3 py-1">{job_item['positions']} Positions</div>
-                      </div>
-                      <div className="action-buttons mt-4">
-                        <div className="row">
-                          <div className="col-md-4 mt-2">
-                            <button className="btn btn-info py-2 px-3 w-100 d-inline-block">Edit</button>
-                          </div>
-                          <div className="col-md-4 mt-2">
-                            <button className="btn btn-danger py-2 px-3 w-100 d-inline-block">Delete</button>
-                          </div>
-                          <div className="col-md-4 mt-2">
-                            <button className="btn light-button py-2 px-3 w-100 d-inline-block" onClick={() => this.jobCallback(job_item['_id'])}>View More</button>
+                  <div className="col-lg-4 my-2 desktop-only job-list-scroll">
+                    {this.state.displayjobs.map(job_item => ( 
+                    <div className="col-lg-12 my-2">
+                      <div className="job-card p-3">
+                        <div className="job-image"><img src={"../../images/"+job_item['image']} alt="job"/></div>
+                        <br/>
+                        <div className="ellipsis">{job_item['rating'] === -1 ? "UNRATED" : job_item['rating']} &nbsp;<i><FontAwesomeIcon icon={faStar} color="#ffd500" /></i></div>
+                        <div className="recruiter-name">{job_item['name']}</div>
+                        <div className="job-header"><strong>{job_item['title']}</strong></div>
+                        <div className="recruiter-name"><span style={{"color": "green"}}>Posted at: {job_item['posting']}</span></div>
+                        <br/>
+                        <p className="text-secondary">{job_item['description']} </p>
+                        <div className="tags">
+                          <div className="tag mr-2 mt-2 px-3 py-1">{job_item['currApplications']} Applicants</div>
+                          <div className="tag mr-2 mt-2 px-3 py-1">{job_item['positions']} Positions</div>
+                        </div>
+                        <div className="action-buttons mt-4">
+                          <div className="row">
+                            <div className="col-md-4 mt-2">
+                              <button className="btn btn-info py-2 px-3 w-100 d-inline-block">Edit</button>
+                            </div>
+                            <div className="col-md-4 mt-2">
+                              <button className="btn btn-danger py-2 px-3 w-100 d-inline-block">Delete</button>
+                            </div>
+                            <div className="col-md-4 mt-2">
+                              <button className="btn light-button py-2 px-3 w-100 d-inline-block">View More</button>
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
                   ))}
+                  </div>
+                  <div className="col-lg-8 my-2 job-list-scroll">
+                    <div className="job-detailed-card my-2">
+                      <div className="timeline">
+                        <div className="timeline-cover">
+                          <img src="../../images/cover.jpg" alt="job"/>
+                        </div>
+                        <div className="timeline-profile-picture">
+                          <img src="../../images/astronaut.png" alt="job"/>
+                        </div>
+                      </div>
+                      <div className="job-detailed-content p-5">
+                        <div className="float-left job-detailed-header">User Interface Designer</div>
+                        <div className="desktop-only text-right"><i className="detailed-icon mx-2"><FontAwesomeIcon icon={faHeart} color="tomato" size="2x" /></i></div>
+                        <div className="mt-2 text-info"><span className="job-detailed-recruiter">Prajneya Kumar</span> <span className="text-secondary">• prajneya@prajneya.com</span></div>
+                        <div className="text-right text-secondary">Posted 2 days ago <strong> • 98 applicants </strong></div>
+
+                        <div className="mt-5 table-responsive">
+                          <table className="table table-hover">
+                            <thead>
+                              <tr>
+                                <th scope="col" className="text-center">DURATION</th>
+                                <th scope="col" className="text-center">MAX NO. OF APPLICATIONS</th>
+                                <th scope="col" className="text-center">MAX NO. OF POSITIONS</th>
+                                <th scope="col" className="text-center">OFFERED SALARY</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td className="text-center">2 Months</td>
+                                <td className="text-center">100</td>
+                                <td className="text-center">20</td>
+                                <td className="text-center">₹ 40000 / Month</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+
+                        <h5 className="mt-3"><strong>Overview</strong></h5>
+                        <p className="text-secondary">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                      
+                        <h5 className="mt-3"><strong>Job Description</strong></h5>
+                        <ul className="arrow">
+                          <li>The job requires a dedication of 4 months</li>
+                          <li>Deadline for application: </li>
+                          <li>Applicants are required to know the following skills: </li>
+                          <li>This is a full-time job </li>
+                        </ul>
+
+                        <h5 className="mt-3"><strong>Current Applicants</strong></h5>
+                        <div className="float-right tablet-only">
+                          <span className="sort-icon" onClick={this.descendingSort}><i><FontAwesomeIcon icon={faSortNumericUp} color={this.state.asc===0 ? "tomato" : ""}/></i></span> &nbsp;
+                          <span className="sort-icon" onClick={this.ascendingSort}><i><FontAwesomeIcon icon={faSortNumericDown} color={this.state.asc===1 ? "tomato" : ""} /></i></span> &nbsp;
+                           Sort By: &nbsp;
+                          <select className="sort-select" id="sortApplicationsBy">
+                            <option value="starter">Select</option>
+                            <option value="nameApp">Name</option>
+                            <option value="dateApp">Date</option>
+                            <option value="ratingApp">Rating</option>
+                          </select>
+                        </div> 
+                        <div className="mt-5 table-responsive">
+                          <table className="table table-hover">
+                            <thead>
+                              <tr>
+                                <th scope="col" className="text-center">#</th>
+                                <th scope="col" className="text-center">NAME</th>
+                                <th scope="col" className="text-center">DATE OF APPLICATION</th>
+                                <th scope="col" className="text-center">RATING</th>
+                                <th scope="col" className="text-center">DETAILS</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <th scope="row" className="text-center pt-3">1</th>
+                                <td className="text-center pt-3">Prajneya Kumar</td>
+                                <td className="text-center pt-3">2021-01-11T18:40:09.618Z</td>
+                                <td className="text-center pt-3">UNRATED</td>
+                                <td className="text-center"><button className="btn btn-info">VIEW APPLICATION</button></td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -295,7 +379,7 @@ class RDashboard extends Component {
   }
 }
 
-RDashboard.propTypes = {
+Job.propTypes = {
   logoutUser: PropTypes.func.isRequired,
   getMyJobs: PropTypes.func.isRequired,
   auth: PropTypes.object.isRequired
@@ -307,4 +391,4 @@ const mapStateToProps = state => ({
 export default connect(
   mapStateToProps,
   { getMyJobs, logoutUser }
-)(RDashboard);
+)(Job);

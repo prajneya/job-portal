@@ -91,4 +91,28 @@ router.get("/getSkills", (req, res) => {
     .catch(err => console.log(err));
 });
 
+// @route   POST api/jobs/viewJob
+// @desc    View particular Job Details
+// @access  Public
+router.post("/viewJob", async (req, res) => {
+
+  job = await Job.findById(req.body.id);
+  applications = await Application.find({jobId: req.body.id});
+    
+  var len = application.length;
+  var data = {
+    job: job,
+    applications: []
+  };
+
+  for(var i = 0; i<len; i++){
+    var temp_data = {};
+    temp_data['application'] = application[i];
+    data['applications'].push(temp_data);
+  }
+
+  res.json(data);
+
+});
+
 module.exports = router;
