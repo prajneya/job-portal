@@ -325,7 +325,9 @@ class Dashboard extends Component {
                       <div className="action-buttons mt-4">
                         <div className="row">
                           <div className="col-md-6 mt-2">
-                            <button className="btn btn-primary py-2 px-3 w-100 d-inline-block" onClick={() => this.applyJob(job_item['_id'])}><strong>Apply Now</strong></button>
+                            { job_item['currApplications'] === job_item['applications'] ?
+                            <button className="btn btn-warning py-2 px-3 w-100 d-inline-block"><strong>Full</strong></button>
+                            : <button className="btn btn-primary py-2 px-3 w-100 d-inline-block" onClick={() => this.applyJob(job_item['_id'])}><strong>Apply Now</strong></button>}
                           </div>
                           <div className="col-md-6 mt-2">
                             <button className="btn light-button py-2 px-3 w-100 d-inline-block">View More</button>

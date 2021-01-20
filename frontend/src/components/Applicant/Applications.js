@@ -114,7 +114,8 @@ class Applications extends Component {
                               {application_item['application']['status'] === 0 ? <button className="btn btn-primary py-2 px-3 w-100 d-inline-block bg-info"><strong>Pending</strong></button> : "" }
                               {application_item['application']['status'] === 1 ? <button className="btn btn-primary py-2 px-3 w-100 d-inline-block bg-primary"><strong>Shortlisted</strong></button> : "" }
                               {application_item['application']['status'] === 2 ? <button className="btn btn-primary py-2 px-3 w-100 d-inline-block bg-success"><strong>Accepted</strong></button> : "" }
-                              {application_item['application']['status'] === 3 ? <button className="btn btn-primary py-2 px-3 w-100 d-inline-block bg-warning"><strong>Depriciated</strong></button> : "" }
+                              {application_item['application']['status'] === 3 ? <button className="btn btn-primary py-2 px-3 w-100 d-inline-block bg-danger"><strong>Rejected</strong></button> : "" }
+                              {application_item['application']['status'] === 4 ? <button className="btn btn-primary py-2 px-3 w-100 d-inline-block bg-warning"><strong>Depriciated</strong></button> : "" }
                             </div>
                             <div className="col-md-6 mt-2">
                               <button className="btn light-button py-2 px-3 w-100 d-inline-block">View Submission</button>

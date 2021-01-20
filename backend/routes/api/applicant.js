@@ -46,13 +46,18 @@ router.post("/addApplication", async (req, res) => {
     if(user){
 
         const application = await Application.findOne({applicantId: req.body.applicantId, status: 2});
+        const applications = await Application.find({applicantId: req.body.applicantId, status: { $lt: 2 }});
+        const application_already = await Application.findOne({applicantId: req.body.applicantId, jobId: req.body.jobId, status: { $lt: 2 }});
 
         if(application){
-          console.log(application.status);
-          throw new Error("Already accepted in another job listing.")
+          throw new Error("Already accepted in another job listing.");
         }
 
-        if(user.currApplications.length==10){
+        if(application_already){
+          throw new Error("Application already sent");
+        }
+
+        if(applications.length>=10){
           throw new Error("Number of applications exceeded.");
         }
         else{
@@ -64,6 +69,8 @@ router.post("/addApplication", async (req, res) => {
                 jobId: req.body.jobId,
                 sop: req.body.sop,
               });
+
+              await Job.updateOne({_id: req.body.jobId}, {$set: {currApplications: job.currApplications+1}});
 
               newApplication
                 .save()
@@ -83,22 +90,80 @@ router.post("/addApplication", async (req, res) => {
 // @access  Public
 router.post("/viewMyApplications", async (req, res) => {
 
-    application = await Application.find({applicantId: req.body.id});
+    application = await Application.find({applicantId: req.body.id });
     
     var len = application.length;
     var data = [];
 
     for(var i = 0; i<len; i++){
       job = await Job.findById(application[i].jobId);
-      if(job.active){
-        var temp_data = {};
-        temp_data['application'] = application[i];
-        temp_data['job'] = job;
-        data.push(temp_data);
-      }
+      var temp_data = {};
+      temp_data['application'] = application[i];
+      temp_data['job'] = job;
+      data.push(temp_data);
     }
 
     res.json(data);
+});
+
+// @route   POST api/applicant/changeRating
+// @desc    Change Employee's Ratings
+// @access  Public
+router.post("/changeRating", async (req, res) => {
+
+  const identity = req.body.jobId;
+  const user = await ApplicantDetails.findById(req.body.id);
+
+  if(user['ratedBy'].includes(req.body.id)){
+    throw new Error('Already Rated!');
+  }
+
+  if(user){
+
+    if(user['rating']==-1)
+      await ApplicantDetails.updateOne({'_id': req.body.id}, {$set: {'rating': req.body.rating}});
+    else
+      await ApplicantDetails.updateOne({'_id': req.body.id}, {$inc: {'rating': req.body.rating}});
+
+    user.ratedBy.unshift(identity);
+    user
+      .save()
+      .then(job => res.json(job))
+      .catch(err => console.log(err));
+  }
+
+
+
+});
+
+// @route   POST api/applicant/changeApplicationStatus
+// @desc    Change application status
+// @access  Public
+router.post("/changeApplicationStatus", async (req, res) => {
+    if(req.body.change=="shortlist"){
+      await Application.updateOne({_id: req.body.id}, {$set: {status: 1}})
+    }
+    else if(req.body.change=="accept"){
+
+      const application = await Application.findById(req.body.id);
+      const applications = await Application.find({'applicantId': application['applicantId']});
+      
+      var len = applications.length;
+      for(var i = 0; i<len; i++){
+        await Job.updateOne({'_id': applications[i].jobId}, {$inc: {currApplications: -1}});
+        await Application.updateOne({'_id':  applications[i]['_id']}, {$set: {status: 3}});
+      }
+
+      await Application.updateOne({_id: req.body.id}, {$set: {status: 2}})
+    }
+    else if(req.body.change=="reject"){
+      await Application.updateOne({_id: req.body.id}, {$set: {status: 3}})
+
+      const application = await Application.findById(req.body.id);
+      const job = await Job.findById(application['jobId']);
+      await Job.updateOne({_id: job['_id']}, {$set: {currApplications: job['currApplications']-1}});
+    }
+    res.json();
 });
 
 const storage = multer.diskStorage({

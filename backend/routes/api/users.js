@@ -14,6 +14,7 @@ const validateLoginInput = require("../../validation/login");
 
 // Load User Model
 const User = require('../../models/User').User;
+const Job = require('../../models/Jobs').Job;
 const ApplicantDetails = require('../../models/User').applicantDetails;
 const RecruiterDetails = require('../../models/User').recruiterDetails;
 
@@ -53,9 +54,8 @@ const { errors, isValid } = validateRegisterInput(req.body);
                   skills: [],
                   resume: "",
                   profilePic: "reaper.png",
-                  currApplications: [],
                   rating: -1,
-                  ratedBy: 0
+                  ratedBy: []
                 });
 
                 newApplicantDetail
@@ -167,9 +167,30 @@ router.post("/getRecruiterProfile", (req, res) => {
 // @route   POST api/users/updatePersonal
 // @desc    Update personal details of any user
 // @access  Public
-router.post("/updatePersonal", (req, res) => {
+router.post("/updatePersonal", async (req, res) => {
 
-  User.updateOne({_id: req.body.id}, {$set: {name: req.body.name, email: req.body.email}})
+  const user = await User.findById(req.body.id);
+
+  if(user['userType']==0){
+    User.updateOne({_id: req.body.id}, {$set: {name: req.body.name, email: req.body.email}})
+      .then(userDetail => res.json(userDetail))
+      .catch(err => console.log(err));
+  }
+  else if(user['userType']==1){
+    await User.updateOne({_id: req.body.id}, {$set: {name: req.body.name, email: req.body.email}})
+      .then(userDetail => res.json(userDetail))
+      .catch(err => console.log(err));
+
+    await Job.updateMany({createdBy: req.body.id}, {$set: {name: req.body.name, email: req.body.email}})
+  }
+});
+
+// @route   POST api/users/updateRecruiter
+// @desc    Update recruiter details of any employer
+// @access  Public
+router.post("/updateRecruiter", (req, res) => {
+
+  RecruiterDetails.updateOne({_id: req.body.id}, {$set: {contactNum: req.body.contactNum, bio: req.body.bio}})
     .then(userDetail => res.json(userDetail))
     .catch(err => console.log(err));
 });

@@ -8,9 +8,10 @@ import { faStar, faSortNumericUp, faSortNumericDown, faSearch } from '@fortaweso
 import Slider from '@material-ui/core/Slider';
 import Swal from 'sweetalert2';
 import Topbar from './Topbar.js';
-import { getMyJobs } from './../../actions/jobAction.js';
+import { getMyEmployees } from './../../actions/jobAction.js';
+import StarRatings from 'react-star-ratings';
 
-class RDashboard extends Component {
+class Employees extends Component {
 
   constructor() {
       super();
@@ -20,12 +21,13 @@ class RDashboard extends Component {
         displayjobs: [],
         firstCheck: 0,
         asc: 1,
-        search: ""
+        search: "",
+        rating: 2.5
       };
   }
 
   componentDidMount = () => {
-    this.props.getMyJobs({"id": this.props.auth.user['id']});
+    this.props.getMyEmployees({"id": this.props.auth.user['id']});
   };
 
   sort_by_key = (array, key) => {
@@ -199,15 +201,31 @@ class RDashboard extends Component {
     })
   };
 
+  changeRating = ( newRating, name ) => {
+    this.setState({
+      rating: newRating
+    });
+  };
+
+  submitRating = (jobId, id) => {
+    axios
+      .post("/api/applicant/changeRating", {"id": id, "rating": this.state.rating, "jobId": jobId})
+      .then(async () => {
+        Swal.fire('Added Rating!', '', 'success')
+      });
+  }
+
   render() {
 
-    if(this.state.firstCheck===0 && this.props.job.job.length > 0){
+    if(this.state.firstCheck===0 && this.props.job.employees.length > 0){
       this.setState({
-        jobs: this.props.job.job,
-        displayjobs: this.props.job.job,
+        jobs: this.props.job.employees,
+        displayjobs: this.props.job.employees,
         firstCheck: 1
       })
     }
+
+    console.log(this.state.displayjobs)
 
     return (
 
@@ -223,55 +241,17 @@ class RDashboard extends Component {
                 <p className="text-secondary">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. </p>
                 <button className="btn btn-primary" onClick={this.createJobCallback}>Create Job Listing > </button>
               </div>
-              <div className="filter-header mt-3 mx-2">
-                <label>Type of Employment</label>
-                <div className="checkbox checkbox-primary mt-2" onClick={this.filterJobType}>
-                  <input id="fulltime" type="checkbox" name="jobType" defaultChecked/>
-                  <label htmlFor="fulltime" className="filter-label text-secondary">Full-Time</label>
-                </div>
-                <div className="checkbox checkbox-primary" onClick={this.filterJobType}>
-                  <input id="parttime" type="checkbox" name="jobType" defaultChecked/>
-                  <label htmlFor="parttime" className="filter-label text-secondary">Part-Time</label>
-                </div>
-                <div className="checkbox checkbox-primary" onClick={this.filterJobType}>
-                  <input id="wfh" type="checkbox" name="jobType" defaultChecked/>
-                  <label htmlFor="wfh" className="filter-label text-secondary">Work From Home</label>
-                </div>
-              </div>
-              <div className="filter-header mt-3 mx-2">
-                <label>Salary Range</label>
-                <Slider
-                  value={this.state.value}
-                  onChange={this.handleChange}
-                  valueLabelDisplay="auto"
-                  aria-labelledby="range-slider"
-                  min={0}
-                  max={100000}
-                />
-              </div>
-              <div className="filter-header mt-3 mx-2">
-                <label>Duration</label> &nbsp; &nbsp;
-                <select className="sort-select" id="filterBy" onChange={this.filterDuration} defaultValue="6">
-                  <option value="0">1 Month</option>
-                  <option value="1">2 Months</option>
-                  <option value="2">3 Months</option>
-                  <option value="3">4 Months</option>
-                  <option value="4">5 Months</option>
-                  <option value="5">6 Months</option>
-                  <option value="6">7 Months</option>
-                </select>
-              </div>
             </div>
             <div className="col-lg-10">
-              <h4 className="jobs-header">Showing {this.state.displayjobs.length} Active Job Listings</h4>
+              <h4 className="jobs-header">Showing {this.state.displayjobs.length} Employees</h4>
               <div className="float-right tablet-only">
                 <span className="sort-icon" onClick={this.descendingSort}><i><FontAwesomeIcon icon={faSortNumericUp} color={this.state.asc===0 ? "tomato" : ""}/></i></span> &nbsp;
                 <span className="sort-icon" onClick={this.ascendingSort}><i><FontAwesomeIcon icon={faSortNumericDown} color={this.state.asc===1 ? "tomato" : ""} /></i></span> &nbsp;
                  Sort By: &nbsp;
                 <select className="sort-select" id="sortBy" onChange={this.filterSort}>
-                  <option value="posting">Select</option>
-                  <option value="salary">Salary</option>
-                  <option value="duration">Duration</option>
+                  <option value="posting">Name</option>
+                  <option value="salary">Job Title</option>
+                  <option value="duration">Date of Joining</option>
                   <option value="rating">Rating</option>
                 </select>
               </div> 
@@ -280,31 +260,30 @@ class RDashboard extends Component {
                   {this.state.displayjobs.map(job_item => ( 
                   <div className="col-lg-4 my-2">
                     <div className="job-card p-3">
-                      <div className="job-image"><img src={"../images/"+job_item['image']} alt="job"/></div>
+                      <div className="job-image"><img src={"../images/profilepics/"+job_item['applicantDets']['profilePic']} alt="job"/></div>
                       <br/>
-                      <div className="ellipsis">{job_item['rating'] === -1 ? "UNRATED" : job_item['rating']} &nbsp;<i><FontAwesomeIcon icon={faStar} color="#ffd500" /></i></div>
-                      <div className="recruiter-name">{job_item['name']}</div>
-                      <div className="job-header"><strong>{job_item['title']}</strong></div>
-                      <div className="recruiter-name"><span style={{"color": "green"}}>Posted at: {job_item['posting']}</span></div>
+                      <div className="ellipsis">{job_item['applicantDets']['rating'] === -1 ? "UNRATED" : job_item['applicantDets']['rating']/job_item['applicantDets']['ratedBy'].length} &nbsp;<i><FontAwesomeIcon icon={faStar} color="#ffd500" /></i></div>
+                      <div className="recruiter-name">{job_item['job']['title']}</div>
+                      <div className="job-header"><strong>{job_item['applicant']['name']}</strong></div>
+                      <div className="recruiter-name"><span style={{"color": "green"}}>Date of Joining: {job_item['application']['lastUpdated']}</span></div>
                       <br/>
-                      <p className="text-secondary">{job_item['description']} </p>
                       <div className="tags">
-                        <div className="tag mr-2 mt-2 px-3 py-1">{job_item['currApplications']} Applicants</div>
-                        <div className="tag mr-2 mt-2 px-3 py-1">{job_item['positions']} Positions</div>
+                        {job_item['job']['jobType'] === 0 ? <div className="tag mr-2 mt-2 px-3 py-1">Full Time Employee</div> : "" }
+                        {job_item['job']['jobType'] === 1 ? <div className="tag mr-2 mt-2 px-3 py-1">Part Time Employee</div> : "" }
+                        {job_item['job']['jobType'] === 2 ? <div className="tag mr-2 mt-2 px-3 py-1">Work from Home Employee</div> : "" }
+                      </div> <br/>
+                      {job_item['hasRated'] ? <div className="text-info">You have already rated this employee.</div> :
+                      <div>
+                      <StarRatings
+                        rating={this.state.rating}
+                        starRatedColor="blue"
+                        changeRating={this.changeRating}
+                        numberOfStars={5}
+                        name='rating'
+                      />
+                      <button className="btn float-right btn-info rounded-pill" onClick={() => this.submitRating(job_item['job']['_id'], job_item['applicant']['_id'])}>SUBMIT RATING > </button>
                       </div>
-                      <div className="action-buttons mt-4">
-                        <div className="row">
-                          <div className="col-md-4 mt-2">
-                            <button className="btn btn-info py-2 px-3 w-100 d-inline-block" onClick={() => this.editJobCallback(job_item['_id'])}>Edit</button>
-                          </div>
-                          <div className="col-md-4 mt-2">
-                            <button className="btn btn-danger py-2 px-3 w-100 d-inline-block" onClick={() => this.deleteJobCallback(job_item['_id'])}>Delete</button>
-                          </div>
-                          <div className="col-md-4 mt-2">
-                            <button className="btn light-button py-2 px-3 w-100 d-inline-block" onClick={() => this.jobCallback(job_item['_id'])}>View More</button>
-                          </div>
-                        </div>
-                      </div>
+                      }
                     </div>
                   </div>
                   ))}
@@ -320,9 +299,9 @@ class RDashboard extends Component {
   }
 }
 
-RDashboard.propTypes = {
+Employees.propTypes = {
   logoutUser: PropTypes.func.isRequired,
-  getMyJobs: PropTypes.func.isRequired,
+  getMyEmployees: PropTypes.func.isRequired,
   auth: PropTypes.object.isRequired
 };
 const mapStateToProps = state => ({
@@ -331,5 +310,5 @@ const mapStateToProps = state => ({
 });
 export default connect(
   mapStateToProps,
-  { getMyJobs, logoutUser }
-)(RDashboard);
+  { getMyEmployees, logoutUser }
+)(Employees);

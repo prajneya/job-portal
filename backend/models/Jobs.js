@@ -19,6 +19,10 @@ const jobSchema = new schema({
 		type: String,
 		required: true
 	},
+	createdBy: {
+		type: String,
+		required: true
+	},
 	applications: {
 		type: Number,
 		required: true
@@ -63,8 +67,8 @@ const jobSchema = new schema({
 		default: -1
 	},
 	ratedBy: {
-		type: Number,
-		default: 0
+		type: [String],
+		default: []
 	},
 	image: {
 		type: String,

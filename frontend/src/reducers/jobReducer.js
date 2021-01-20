@@ -1,9 +1,10 @@
-import { GET_JOBS, GET_RECRUITER_JOBS, GET_APPLICANT_APPLICATIONS, GET_SKILLS, JOBS_LOADING } from "../actions/types";
+import { GET_JOBS, GET_RECRUITER_JOBS, GET_RECRUITER_EMPLOYEES, GET_APPLICANT_APPLICATIONS, GET_SKILLS, JOBS_LOADING } from "../actions/types";
 
 const initialState = {
   job: [],
   skills: [],
   applications: [],
+  employees: [],
   loading: false
 };
 
@@ -19,6 +20,12 @@ export default function(state = initialState, action) {
       return {
         ...state,
         job: action.payload,
+        loading: false
+      };
+    case GET_RECRUITER_EMPLOYEES:
+      return {
+        ...state,
+        employees: action.payload,
         loading: false
       };
     case GET_SKILLS:

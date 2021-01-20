@@ -41,9 +41,8 @@ const applicantDetailsSchema = new schema({
 	skills: [String],
 	resume: String,
 	profilePic: String,
-	currApplications: [schema.Types.ObjectId],
 	rating: Number,
-	ratedBy: Number
+	ratedBy: [String]
 })
 
 // Create Recruiter Details Schema

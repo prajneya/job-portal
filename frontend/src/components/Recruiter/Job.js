@@ -6,7 +6,7 @@ import axios from "axios";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faStar, faSortNumericUp, faSortNumericDown, faSearch, faHeart, faShareAlt } from '@fortawesome/free-solid-svg-icons'
 import Slider from '@material-ui/core/Slider';
-
+import Swal from 'sweetalert2';
 import Topbar from './Topbar.js';
 import { getMyJobs } from './../../actions/jobAction.js';
 
@@ -20,12 +20,25 @@ class Job extends Component {
         displayjobs: [],
         firstCheck: 0,
         asc: 1,
-        search: ""
+        search: "",
+        display: {}
       };
   }
 
   componentDidMount = () => {
-    this.props.getMyJobs({"email": this.props.auth.user.email});
+    this.props.getMyJobs({"id": this.props.auth.user['id']});
+
+    var state_current = this;
+
+    axios
+      .post("/api/jobs/viewJob", {"id": this.props.match.params.id})
+      .then(res => {
+         console.log(res.data);
+         state_current.setState({
+          display: res.data
+        })
+      });
+
   };
 
   sort_by_key = (array, key) => {
@@ -169,6 +182,237 @@ class Job extends Component {
       });
   };
 
+  jobCallback = (jobId) => {
+    this.props.history.push('/recruiter/job/'+jobId);
+    window.location.reload(false);
+  };
+
+  viewApplication = (user, application, applicant) => {
+
+    var skills_string = applicant['skills'].toString();
+
+    if(application['status']===0){
+      Swal.fire({
+        title: user['name']+' - Application',
+        didOpen: () => {
+          var tableData = document.getElementById("table__body");
+          var len = applicant['education'].length;
+          for(var i = 0; i<len; i++){
+            var tr = document.createElement('tr');
+
+            var td = document.createElement('td');
+            td.innerHTML = i+1;
+            tr.appendChild(td);
+
+            td = document.createElement('td');
+            td.innerHTML = applicant['education'][i]['name'];
+            tr.appendChild(td);
+
+            td = document.createElement('td');
+            td.innerHTML = applicant['education'][i]['startYear'];
+            tr.appendChild(td);
+
+            td = document.createElement('td');
+            td.innerHTML = applicant['education'][i]['endYear'];
+            tr.appendChild(td);
+
+            tableData.appendChild(tr);
+          }
+        },  
+        html: `<label>NAME</label>
+              <p>${user['name']}</p>
+              <label>DATE OF APPLICATION</label>
+              <p>${application['createdAt']}</p>
+              <label>SOP</label>
+              <p>${application['sop']}</p>
+              <label>EDUCATION</label>
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col">INSTITUTION NAME</th>
+                      <th scope="col">START YEAR</th>
+                      <th scope="col">END YEAR</th>
+                    </tr>
+                  </thead>
+                  <tbody id="table__body">
+                  </tbody>
+                </table>
+              </div>
+              <label>SKILLS</label>
+              <p>${skills_string}</p>
+              <label>RATING</label>
+              <p>${applicant['rating']==-1 ? "UNRATED" : applicant['rating']/applicant['ratedBy'].length}</p>
+              <label>STAGE OF APPLICATION</label>
+              <p>Pending</p>
+              <label>RESUME</label>
+              <p><a href=${applicant['resume']=="" ? "" : "../../resume/"+applicant['resume']}>${applicant['resume']=="" ? "NO RESUME" : "DOWNLOAD"}</a></p>
+              `,
+        showCancelButton: true,
+        showDenyButton: true,
+        denyButtonColor: 'grey',
+        denyButtonText: 'Cancel',
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#8b0000',
+        confirmButtonText: 'Shortlist',
+        cancelButtonText: 'Reject',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        customClass: {
+          content: 'text-left',
+        }
+      }).then((result) => {
+        if(result.isConfirmed){
+          axios
+            .post("/api/applicant/changeApplicationStatus", {"change": "shortlist", "id": application['_id']})
+            .then(() => {
+              Swal.fire({
+                icon: 'success',
+                title: 'Shortlisted',
+                text: 'The application is shortlisted!',
+              })
+            });
+        }
+        else if(result.isDismissed){
+          axios
+            .post("/api/applicant/changeApplicationStatus", {"change": "reject", "id": application['_id']})
+            .then(() => {
+              Swal.fire({
+                icon: 'error',
+                title: 'Rejected',
+                text: 'The application is rejected!',
+              })
+            });
+        }
+      })
+    }
+    else{
+      if(application['status']===1){
+      Swal.fire({
+        title: user['name']+' - Application',
+        didOpen: () => {
+          var tableData = document.getElementById("table__body");
+          var len = applicant['education'].length;
+          for(var i = 0; i<len; i++){
+            var tr = document.createElement('tr');
+
+            var td = document.createElement('td');
+            td.innerHTML = i+1;
+            tr.appendChild(td);
+
+            td = document.createElement('td');
+            td.innerHTML = applicant['education'][i]['name'];
+            tr.appendChild(td);
+
+            td = document.createElement('td');
+            td.innerHTML = applicant['education'][i]['startYear'];
+            tr.appendChild(td);
+
+            td = document.createElement('td');
+            td.innerHTML = applicant['education'][i]['endYear'];
+            tr.appendChild(td);
+
+            tableData.appendChild(tr);
+          }
+        },  
+        html: `<label>NAME</label>
+              <p>${user['name']}</p>
+              <label>DATE OF APPLICATION</label>
+              <p>${application['createdAt']}</p>
+              <label>SOP</label>
+              <p>${application['sop']}</p>
+              <label>EDUCATION</label>
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col">INSTITUTION NAME</th>
+                      <th scope="col">START YEAR</th>
+                      <th scope="col">END YEAR</th>
+                    </tr>
+                  </thead>
+                  <tbody id="table__body">
+                  </tbody>
+                </table>
+              </div>
+              <label>SKILLS</label>
+              <p>${skills_string}</p>
+              <label>RATING</label>
+              <p>${applicant['rating']==-1 ? "UNRATED" : applicant['rating']/applicant['ratedBy'].length}</p>
+              <label>STAGE OF APPLICATION</label>
+              <p>Shortlisted</p>
+              <label>RESUME</label>
+              <p><a href=${"../../resume/"+applicant['resume']}>DOWNLOAD</a></p>
+              `,
+        showCancelButton: true,
+        showDenyButton: true,
+        denyButtonColor: 'grey',
+        denyButtonText: 'Cancel',
+        confirmButtonColor: '#4bb543',
+        cancelButtonColor: '#8b0000',
+        confirmButtonText: 'Accept',
+        cancelButtonText: 'Reject',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        customClass: {
+          content: 'text-left',
+        }
+      }).then((result) => {
+        if(result.isConfirmed){
+          axios
+            .post("/api/applicant/changeApplicationStatus", {"change": "accept", "id": application['_id']})
+            .then(() => {
+              Swal.fire({
+                icon: 'success',
+                title: 'Accepted',
+                text: 'The application is accepted!',
+              })
+            });
+        }
+        else if(result.isDismissed){
+          axios
+            .post("/api/applicant/changeApplicationStatus", {"change": "reject", "id": application['_id']})
+            .then(() => {
+              Swal.fire({
+                icon: 'error',
+                title: 'Rejected',
+                text: 'The application is rejected!',
+              })
+            });
+        }
+      })
+    }
+    }
+  };
+
+  editJobCallback = (jobId) => {
+    this.props.history.push('/recruiter/editJob/'+jobId)
+  };
+
+  deleteJobCallback = async (jobId) => {
+    await Swal.fire({
+      icon: 'error',
+      title: 'Are you sure you want to delete this Job Listing?',
+      footer: 'This action cannot be undone',
+      showDenyButton: true,
+      showCancelButton: false,
+      confirmButtonText: `Yes`,
+      denyButtonText: `No`,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axios
+          .post("/api/jobs/delete", {"id": jobId})
+          .then(async () => {
+            Swal.fire('Deleted Job Listing!', '', 'success')
+          });
+      } else if (result.isDenied) {
+        Swal.fire('Job Listing not deleted!', '', 'info')
+      }
+    })
+  };
+
 
   render() {
 
@@ -267,13 +511,13 @@ class Job extends Component {
                         <div className="action-buttons mt-4">
                           <div className="row">
                             <div className="col-md-4 mt-2">
-                              <button className="btn btn-info py-2 px-3 w-100 d-inline-block">Edit</button>
+                              <button className="btn btn-info py-2 px-3 w-100 d-inline-block" onClick={() => this.editJobCallback(job_item['_id'])}>Edit</button>
                             </div>
                             <div className="col-md-4 mt-2">
-                              <button className="btn btn-danger py-2 px-3 w-100 d-inline-block">Delete</button>
+                              <button className="btn btn-danger py-2 px-3 w-100 d-inline-block" onClick={() => this.deleteJobCallback(job_item['_id'])}>Delete</button>
                             </div>
                             <div className="col-md-4 mt-2">
-                              <button className="btn light-button py-2 px-3 w-100 d-inline-block">View More</button>
+                              <button className="btn light-button py-2 px-3 w-100 d-inline-block" onClick={() => this.jobCallback(job_item['_id'])}>View More</button>
                             </div>
                           </div>
                         </div>
@@ -288,14 +532,14 @@ class Job extends Component {
                           <img src="../../images/cover.jpg" alt="job"/>
                         </div>
                         <div className="timeline-profile-picture">
-                          <img src="../../images/astronaut.png" alt="job"/>
+                          <img src={"../../images/"+(this.state.display.job ? this.state.display.job.image : "")} alt="job"/>
                         </div>
                       </div>
                       <div className="job-detailed-content p-5">
-                        <div className="float-left job-detailed-header">User Interface Designer</div>
+                        <div className="float-left job-detailed-header">{this.state.display.job ? this.state.display.job.title : ""}</div>
                         <div className="desktop-only text-right"><i className="detailed-icon mx-2"><FontAwesomeIcon icon={faHeart} color="tomato" size="2x" /></i></div>
-                        <div className="mt-2 text-info"><span className="job-detailed-recruiter">Prajneya Kumar</span> <span className="text-secondary">• prajneya@prajneya.com</span></div>
-                        <div className="text-right text-secondary">Posted 2 days ago <strong> • 98 applicants </strong></div>
+                        <div className="mt-2 text-info"><span className="job-detailed-recruiter">{this.state.display.job ? this.state.display.job.name : ""}</span> <span className="text-secondary">• {this.state.display.job ? this.state.display.job.email : ""}</span></div>
+                        <div className="text-right text-secondary">{this.state.display.job ? this.state.display.job.posting : ""} <strong> • {this.state.display.job ? this.state.display.job.currApplications : ""} applicants </strong></div>
 
                         <div className="mt-5 table-responsive">
                           <table className="table table-hover">
@@ -309,61 +553,70 @@ class Job extends Component {
                             </thead>
                             <tbody>
                               <tr>
-                                <td className="text-center">2 Months</td>
-                                <td className="text-center">100</td>
-                                <td className="text-center">20</td>
-                                <td className="text-center">₹ 40000 / Month</td>
+                                <td className="text-center">{this.state.display.job ? this.state.display.job.duration : ""} Months</td>
+                                <td className="text-center">{this.state.display.job ? this.state.display.job.applications : ""}</td>
+                                <td className="text-center">{this.state.display.job ? this.state.display.job.positions : ""}</td>
+                                <td className="text-center">₹ {this.state.display.job ? this.state.display.job.salary : ""} / Month</td>
                               </tr>
                             </tbody>
                           </table>
                         </div>
 
                         <h5 className="mt-3"><strong>Overview</strong></h5>
-                        <p className="text-secondary">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                        <p className="text-secondary">{this.state.display.job ? this.state.display.job.description : ""}</p>
                       
                         <h5 className="mt-3"><strong>Job Description</strong></h5>
                         <ul className="arrow">
-                          <li>The job requires a dedication of 4 months</li>
-                          <li>Deadline for application: </li>
-                          <li>Applicants are required to know the following skills: </li>
-                          <li>This is a full-time job </li>
+                          <li>The job requires a dedication of {this.state.display.job ? this.state.display.job.duration : ""} months</li>
+                          <li>Deadline for application: {this.state.display.job ? this.state.display.job.deadline : ""}</li>
+                          <li>Applicants are required to know the following skills: <br/>
+                            {this.state.display.job && this.state.display.job.skillset.map(skill => (
+                              <div className="tag mr-2 mt-2 px-3 py-1 bg-success text-white">{skill}</div>
+                            ))}
+                          </li>
+                          <li>{this.state.display.job ? this.state.display.job.jobType === 0 ? "This is a full time job" : this.state.display.job.jobType === 1 ? "This is a part time job" : "This is a work-from-home job." : ""}</li>
                         </ul>
 
                         <h5 className="mt-3"><strong>Current Applicants</strong></h5>
-                        <div className="float-right tablet-only">
-                          <span className="sort-icon" onClick={this.descendingSort}><i><FontAwesomeIcon icon={faSortNumericUp} color={this.state.asc===0 ? "tomato" : ""}/></i></span> &nbsp;
-                          <span className="sort-icon" onClick={this.ascendingSort}><i><FontAwesomeIcon icon={faSortNumericDown} color={this.state.asc===1 ? "tomato" : ""} /></i></span> &nbsp;
-                           Sort By: &nbsp;
-                          <select className="sort-select" id="sortApplicationsBy">
-                            <option value="starter">Select</option>
-                            <option value="nameApp">Name</option>
-                            <option value="dateApp">Date</option>
-                            <option value="ratingApp">Rating</option>
-                          </select>
-                        </div> 
-                        <div className="mt-5 table-responsive">
-                          <table className="table table-hover">
-                            <thead>
-                              <tr>
-                                <th scope="col" className="text-center">#</th>
-                                <th scope="col" className="text-center">NAME</th>
-                                <th scope="col" className="text-center">DATE OF APPLICATION</th>
-                                <th scope="col" className="text-center">RATING</th>
-                                <th scope="col" className="text-center">DETAILS</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr>
-                                <th scope="row" className="text-center pt-3">1</th>
-                                <td className="text-center pt-3">Prajneya Kumar</td>
-                                <td className="text-center pt-3">2021-01-11T18:40:09.618Z</td>
-                                <td className="text-center pt-3">UNRATED</td>
-                                <td className="text-center"><button className="btn btn-info">VIEW APPLICATION</button></td>
-                              </tr>
-                            </tbody>
-                          </table>
+                        {this.state.display.job ? this.state.display.job.currApplications ?
+                        <div>
+                          <div className="float-right tablet-only">
+                            <span className="sort-icon" onClick={this.descendingSort}><i><FontAwesomeIcon icon={faSortNumericUp} color={this.state.asc===0 ? "tomato" : ""}/></i></span> &nbsp;
+                            <span className="sort-icon" onClick={this.ascendingSort}><i><FontAwesomeIcon icon={faSortNumericDown} color={this.state.asc===1 ? "tomato" : ""} /></i></span> &nbsp;
+                             Sort By: &nbsp;
+                            <select className="sort-select" id="sortApplicationsBy">
+                              <option value="starter">Select</option>
+                              <option value="nameApp">Name</option>
+                              <option value="dateApp">Date</option>
+                              <option value="ratingApp">Rating</option>
+                            </select>
+                          </div> 
+                          <div className="mt-5 table-responsive">
+                            <table className="table table-hover">
+                              <thead>
+                                <tr>
+                                  <th scope="col" className="text-center">#</th>
+                                  <th scope="col" className="text-center">NAME</th>
+                                  <th scope="col" className="text-center">DATE OF APPLICATION</th>
+                                  <th scope="col" className="text-center">RATING</th>
+                                  <th scope="col" className="text-center">DETAILS</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {this.state.display.applications && this.state.display.applications.map((application, index) => (
+                                <tr>
+                                  <th scope="row" className="text-center pt-3">{index+1}</th>
+                                  <td className="text-center pt-3">{application['applicant']['name']}</td>
+                                  <td className="text-center pt-3">{application['application']['createdAt']}</td>
+                                  <td className="text-center pt-3">{application['applicantDets']['rating'] == -1 ? "UNRATED" : application['applicantDets']['rating']}</td>
+                                  <td className="text-center"><button className="btn btn-info" onClick={() => this.viewApplication(application['applicant'], application['application'], application['applicantDets'])}>VIEW APPLICATION</button></td>
+                                </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
                         </div>
-
+                        : <div className="text-danger">There are no applicants for this job currently. Please check back later.</div> : "" }
                       </div>
                     </div>
                   </div>

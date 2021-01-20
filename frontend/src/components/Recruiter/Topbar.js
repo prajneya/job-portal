@@ -26,6 +26,7 @@ class Topbar extends Component {
               <NavDropdown title={user.name} id="basic-nav-dropdown">
                 <NavDropdown.Item href="/recruiter/profile">Profile Settings</NavDropdown.Item>
                 <NavDropdown.Item href="/recruiter/create">Create Job Listing</NavDropdown.Item>
+                <NavDropdown.Item href="/recruiter/employees">My Employees</NavDropdown.Item>
                 <NavDropdown.Divider />
                 <NavDropdown.Item onClick={this.onLogoutClick}>Logout</NavDropdown.Item>
               </NavDropdown>

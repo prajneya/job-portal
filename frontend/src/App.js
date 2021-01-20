@@ -24,6 +24,8 @@ import RDashboard from "./components/Recruiter/RDashboard";
 import RProfile from "./components/Recruiter/Profile";
 import CreateJob from "./components/Recruiter/CreateJob";
 import Job from "./components/Recruiter/Job";
+import EditJob from "./components/Recruiter/EditJob";
+import Employees from "./components/Recruiter/Employees";
 
 // Check for token to keep user logged in
 if (localStorage.jwtToken) {
@@ -60,6 +62,8 @@ class App extends Component {
               <PrivateRecruiterRoute exact path="/recruiter/profile" component={RProfile} />
               <PrivateRecruiterRoute exact path="/recruiter/create" component={CreateJob} />
               <PrivateRecruiterRoute exact path="/recruiter/job/:id" component={Job} />
+              <PrivateRecruiterRoute exact path="/recruiter/editJob/:id" component={EditJob} />
+              <PrivateRecruiterRoute exact path="/recruiter/employees" component={Employees} />
             </Switch>
           </div>
         </BrowserRouter>

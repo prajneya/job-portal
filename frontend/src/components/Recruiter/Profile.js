@@ -20,10 +20,8 @@ class Profile extends Component {
         name: -1,
         email: -1,
         photo: -1,
-        institution: "",
-        start: "",
-        end: "",
-        resume: -1
+        contactNum: -1,
+        bio: -1
       };
   }
 
@@ -82,15 +80,39 @@ class Profile extends Component {
       this.props.updatePersonalSettings(userData);
   };
 
+  onRecruiterSubmit = async e => {
+      e.preventDefault();
+
+      if(this.state.contactNum===-1){
+        await this.setState({
+          contactNum: this.props.auth.personal.contactNum
+        })
+      }
+      if(this.state.bio===-1){
+        await this.setState({
+          bio: this.props.auth.personal.bio
+        })
+      }
+      
+      const userData = {
+        id: this.props.auth.user.id,
+        contactNum: this.state.contactNum,
+        bio: this.state.bio
+      };
+
+      axios
+          .post('/api/users/updateRecruiter', userData)
+          .then(res => {
+            console.log(res);
+          })
+          .catch(err => {
+            console.log(err);
+          });
+  };
+
   handlePhoto = async e => {
     await this.setState({
       photo: e.target.files[0]
-    })
-  };
-
-  handleResume = async e => {
-    await this.setState({
-      resume: e.target.files[0]
     })
   };
 
@@ -111,29 +133,12 @@ class Profile extends Component {
       });
   };
 
-  handleResumeSubmit = e => {
-    e.preventDefault();
-    const formData = new FormData();
-    formData.append('id', this.props.auth.user.id);
-    formData.append('resume', this.state.resume);
-
-    axios
-      .post('/api/applicant/uploadResume', formData)
-      .then(res => {
-        console.log(res);
-      })
-      .catch(err => {
-        console.log(err);
-      });
-  };
-
   simulateUploadClick = () => {
     document.getElementById("imageUpload").click();
   };
 
   render() {
     const { user, personal, recruiter } = this.props.auth;
-
     return (
       <>
         <Topbar />
@@ -174,6 +179,19 @@ class Profile extends Component {
                   </form>
                 </div> :
                 <div className="detailed-section m-5">
+                  <form onSubmit={this.onRecruiterSubmit}>
+                    <div className="form-details mt-5">
+                      <div className="form-group">
+                        <label className="pl-3" htmlFor="formGroupExampleInput">PHONE NUMBER</label>
+                        <input type="text" className="pl-3 form-control bg-white" id="contactNum" defaultValue={recruiter.contactNum} onChange={this.onChange} required/>
+                      </div>
+                      <div className="form-group">
+                        <label className="pl-3" htmlFor="formGroupExampleInput">BIO</label>
+                        <input type="text" className="pl-3 form-control bg-white" id="bio" defaultValue={recruiter.bio} onChange={this.onChange} required/>
+                      </div>
+                      <button className="float-right ml-5 btn rounded-pill btn-info">SAVE DETAILS ></button>
+                    </div>
+                  </form>
                 </div> 
                 }
               </div>
