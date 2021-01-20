@@ -151,7 +151,7 @@ router.post("/changeApplicationStatus", async (req, res) => {
       var len = applications.length;
       for(var i = 0; i<len; i++){
         await Job.updateOne({'_id': applications[i].jobId}, {$inc: {currApplications: -1}});
-        await Application.updateOne({'_id':  applications[i]['_id']}, {$set: {status: 3}});
+        await Application.updateOne({'_id':  applications[i]['_id']}, {$set: {status: 3, lastUpdated: Date.now}});
       }
 
       await Application.updateOne({_id: req.body.id}, {$set: {status: 2}})

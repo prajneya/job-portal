@@ -168,19 +168,25 @@ router.post("/viewEmployees", async (req, res) => {
   var data = [];
 
   for(var i = 0; i<len; i++){
-    var temp_data = {};
-    temp_data['job'] = jobs[i];
-    temp_data['application'] = await Application.findOne({jobId: jobs[i]['_id'], status: 2});
-    if(temp_data['application']){
-      temp_data['applicant'] = await User.findById(temp_data['application'].applicantId);
-      temp_data['applicantDets'] = await ApplicantDetails.findById(temp_data['application'].applicantId);  
-      if(temp_data['applicantDets']['ratedBy'].includes(jobs[i]['_id'])){
-        temp_data['hasRated'] = true;
-      }
-      else{
-        temp_data['hasRated'] = false;
-      }
-      data.push(temp_data);
+    applications = await Application.find({jobId: jobs[i]['_id'], status: 2});
+
+    if(applications){
+      var applications_len = applications.length;
+
+      for(var j = 0; j<applications_len; j++){
+        var temp_data = {};
+        temp_data['job'] = jobs[i];
+        temp_data['application'] = applications[j];
+        temp_data['applicant'] = await User.findById(applications[j].applicantId);
+        temp_data['applicantDets'] = await ApplicantDetails.findById(applications[j].applicantId);  
+        if(temp_data['applicantDets']['ratedBy'].includes(jobs[i]['_id'])){
+          temp_data['hasRated'] = true;
+        }
+        else{
+          temp_data['hasRated'] = false;
+        }
+        data.push(temp_data);
+      } 
     }
     else{
       continue;

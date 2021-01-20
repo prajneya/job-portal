@@ -20,6 +20,7 @@ class Job extends Component {
         displayjobs: [],
         firstCheck: 0,
         asc: 1,
+        appAsc: 1,
         search: "",
         display: {}
       };
@@ -48,7 +49,27 @@ class Job extends Component {
       var y = b[key];
       if(state_current.state.asc)
         return ((x < y) ? -1 : ((x > y) ? 1 : 0));
-      console.log(state_current.state.asc)
+      return ((x > y) ? -1 : ((x < y) ? 1 : 0));
+    });
+  };
+
+  applications_sort_by_key = (array, key) => {
+    var state_current = this;
+    return array.sort(function(a, b){
+      if(key==="name"){
+        var x = a['applicant'][key]; 
+        var y = b['applicant'][key];
+      }
+      else if(key==="createdAt"){
+        var x = a['application'][key]; 
+        var y = b['application'][key];
+      }
+      else{
+        var x = a['applicantDets']['rating']/a['applicantDets']['ratedBy'].length; 
+        var y = b['applicantDets']['rating']/b['applicantDets']['ratedBy'].length;
+      }
+      if(state_current.state.appAsc)
+        return ((x < y) ? -1 : ((x > y) ? 1 : 0));
       return ((x > y) ? -1 : ((x < y) ? 1 : 0));
     });
   };
@@ -138,6 +159,18 @@ class Job extends Component {
     })
   };
 
+  filterApplicationSort = () => {
+    var sortkey = document.getElementById("sortApplicationsBy").value;
+
+    var temp_display = this.state.display;
+    temp_display['applications'] = this.applications_sort_by_key(this.state.display.applications, sortkey)
+
+    this.setState({
+      display: temp_display
+    })
+
+  };
+
   ascendingSort = async () => {
     if(this.state.asc===1){
       return;
@@ -156,6 +189,26 @@ class Job extends Component {
       asc: 0
     });
     this.filterSort();
+  };
+
+  ascendingAppSort = async () => {
+    if(this.state.appAsc===1){
+      return;
+    }
+    await this.setState({
+      appAsc: 1
+    });
+    this.filterApplicationSort();
+  };
+
+  descendingAppSort = async () => {
+    if(this.state.appAsc===0){
+      return;
+    }
+    await this.setState({
+      appAsc: 0
+    });
+    this.filterApplicationSort();
   };
 
   onSubmit = e => {
@@ -581,14 +634,14 @@ class Job extends Component {
                         {this.state.display.job ? this.state.display.job.currApplications ?
                         <div>
                           <div className="float-right tablet-only">
-                            <span className="sort-icon" onClick={this.descendingSort}><i><FontAwesomeIcon icon={faSortNumericUp} color={this.state.asc===0 ? "tomato" : ""}/></i></span> &nbsp;
-                            <span className="sort-icon" onClick={this.ascendingSort}><i><FontAwesomeIcon icon={faSortNumericDown} color={this.state.asc===1 ? "tomato" : ""} /></i></span> &nbsp;
+                            <span className="sort-icon" onClick={this.descendingAppSort}><i><FontAwesomeIcon icon={faSortNumericUp} color={this.state.appAsc===0 ? "tomato" : ""}/></i></span> &nbsp;
+                            <span className="sort-icon" onClick={this.ascendingAppSort}><i><FontAwesomeIcon icon={faSortNumericDown} color={this.state.appAsc===1 ? "tomato" : ""} /></i></span> &nbsp;
                              Sort By: &nbsp;
-                            <select className="sort-select" id="sortApplicationsBy">
+                            <select className="sort-select" onChange={this.filterApplicationSort} id="sortApplicationsBy">
                               <option value="starter">Select</option>
-                              <option value="nameApp">Name</option>
-                              <option value="dateApp">Date</option>
-                              <option value="ratingApp">Rating</option>
+                              <option value="name">Name</option>
+                              <option value="createdAt">Date</option>
+                              <option value="rating">Rating</option>
                             </select>
                           </div> 
                           <div className="mt-5 table-responsive">

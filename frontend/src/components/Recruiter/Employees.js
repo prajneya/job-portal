@@ -33,8 +33,25 @@ class Employees extends Component {
   sort_by_key = (array, key) => {
     var state_current = this;
     return array.sort(function(a, b){
-      var x = a[key]; 
-      var y = b[key];
+      if(key==="name"){
+
+        var x = a['applicant'][key]; 
+        var y = b['applicant'][key];
+      }
+      else if(key==="title"){
+        
+        var x = a['job'][key]; 
+        var y = b['job'][key];
+      }
+      else if(key==="lastUpdated"){
+        
+        var x = a['application'][key]; 
+        var y = b['application'][key];
+      }
+      else{
+        var x = a['applicantDets']['rating']/a['applicantDets']['ratedBy'].length; 
+        var y = b['applicantDets']['rating']/b['applicantDets']['ratedBy'].length;
+      }
       if(state_current.state.asc)
         return ((x < y) ? -1 : ((x > y) ? 1 : 0));
       console.log(state_current.state.asc)
@@ -249,9 +266,10 @@ class Employees extends Component {
                 <span className="sort-icon" onClick={this.ascendingSort}><i><FontAwesomeIcon icon={faSortNumericDown} color={this.state.asc===1 ? "tomato" : ""} /></i></span> &nbsp;
                  Sort By: &nbsp;
                 <select className="sort-select" id="sortBy" onChange={this.filterSort}>
-                  <option value="posting">Name</option>
-                  <option value="salary">Job Title</option>
-                  <option value="duration">Date of Joining</option>
+                  <option value="select">Select</option>
+                  <option value="name">Name</option>
+                  <option value="title">Job Title</option>
+                  <option value="lastUpdated">Date of Joining</option>
                   <option value="rating">Rating</option>
                 </select>
               </div> 
