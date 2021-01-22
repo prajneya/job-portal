@@ -33,7 +33,10 @@ router.post("/addInstitution", async (req, res) => {
         user
           .save()
           .then(userinstance => res.json(userinstance))
-          .catch(err => console.log(err));
+          .catch(err => res.status(400).json({ err }));
+    }
+    else{
+      res.status(400).json({ user: "User not found!" })
     }
 });
 
@@ -50,8 +53,11 @@ router.post("/addSkill", async (req, res) => {
           user
           .save()
           .then(userinstance => res.json(userinstance))
-          .catch(err => console.log(err));
+          .catch(err => res.status(400).json({ err }));
         }
+    }
+    else{
+      res.status(400).json({ user: "User not found!" })
     }
 });
 
@@ -68,15 +74,15 @@ router.post("/addApplication", async (req, res) => {
         const application_already = await Application.findOne({applicantId: req.body.applicantId, jobId: req.body.jobId, status: { $lt: 2 }});
 
         if(application){
-          throw new Error("Already accepted in another job listing.");
+          res.status(400).json({ application: "Already accepted in another job listing." });
         }
 
         if(application_already){
-          throw new Error("Application already sent");
+          res.status(400).json({ application: "Application already sent" });
         }
 
         if(applications.length>=10){
-          throw new Error("Number of applications exceeded.");
+          res.status(400).json({ application: "Number of applications exceeded." });
         }
         else{
           const job = await Job.findById(req.body.jobId);
@@ -88,18 +94,21 @@ router.post("/addApplication", async (req, res) => {
                 sop: req.body.sop,
               });
 
-              await Job.updateOne({_id: req.body.jobId}, {$set: {currApplications: job.currApplications+1}});
+              await Job.updateOne({_id: req.body.jobId}, {$inc: {currApplications: 1}});
 
               newApplication
                 .save()
                 .then(application => res.json(application))
-                .catch(err => console.log(err));
+                .catch(err => res.status(400).json({ err }));
             }
             else{
-              throw new Error("Applications for this job is full.");
+              res.status(400).json({ application: "Applications for this job is full." });
             }
           }
         }
+    }
+    else{
+      res.status(400).json({ user: "User not found!" })
     }
 });
 
@@ -108,6 +117,7 @@ router.post("/addApplication", async (req, res) => {
 // @access  Public
 router.post("/viewMyApplications", async (req, res) => {
 
+  try{
     application = await Application.find({applicantId: req.body.id });
     
     var len = application.length;
@@ -122,6 +132,11 @@ router.post("/viewMyApplications", async (req, res) => {
     }
 
     res.json(data);
+  }
+  catch(err){
+    res.status(400).json({ err });
+  }
+    
 });
 
 // @route   POST api/applicant/changeRating
@@ -133,7 +148,7 @@ router.post("/changeRating", async (req, res) => {
   const user = await ApplicantDetails.findById(req.body.id);
 
   if(user['ratedBy'].includes(req.body.id)){
-    throw new Error('Already Rated!');
+    res.status(400).json({ rating: "Already rated" });
   }
 
   if(user){
@@ -147,7 +162,10 @@ router.post("/changeRating", async (req, res) => {
     user
       .save()
       .then(job => res.json(job))
-      .catch(err => console.log(err));
+      .catch(err => res.status(400).json({ err }));
+  }
+  else{
+    res.status(400).json({ user: "User not found" });
   }
 
 });
@@ -161,7 +179,7 @@ router.post("/changeJobRating", async (req, res) => {
   const job = await Job.findById(req.body.jobId);
 
   if(job['ratedBy'].includes(req.body.id)){
-    throw new Error('Already Rated!');
+    res.status(400).json({ rating: "Already rated" });
   }
 
   if(job){
@@ -175,7 +193,10 @@ router.post("/changeJobRating", async (req, res) => {
     job
       .save()
       .then(job_item => res.json(job_item))
-      .catch(err => console.log(err));
+      .catch(err => res.status(400).json({ err }));
+  }
+  else{
+    res.status(400).json({ user: "User not found" });
   }
 
 });
@@ -186,6 +207,8 @@ router.post("/changeJobRating", async (req, res) => {
 // @desc    Change application status
 // @access  Public
 router.post("/changeApplicationStatus", async (req, res) => {
+  
+  try{
     if(req.body.change=="shortlist"){
       await Application.updateOne({_id: req.body.id}, {$set: {status: 1}})
     }
@@ -196,20 +219,30 @@ router.post("/changeApplicationStatus", async (req, res) => {
       
       var len = applications.length;
       for(var i = 0; i<len; i++){
-        await Job.updateOne({'_id': applications[i].jobId}, {$inc: {currApplications: -1}});
-        await Application.updateOne({'_id':  applications[i]['_id']}, {$set: {status: 3, lastUpdated: Date.now}});
+        const job = await Job.findById(applications[i].jobId);
+        const application = await Application.findById(applications[i]['_id']);
+        if(application['status'] == 2){
+          res.status(400).json({ application: "Already accepted somewhere else." });
+        }
+        if(application['status'] < 2){
+          await Job.updateOne({'_id': applications[i].jobId}, {$inc: {currApplications: -1}});
+          await Application.updateOne({'_id':  applications[i]['_id']}, {$set: {status: 3, lastUpdated: Date.now}});
+        }
       }
-
       await Application.updateOne({_id: req.body.id}, {$set: {status: 2}})
     }
     else if(req.body.change=="reject"){
       await Application.updateOne({_id: req.body.id}, {$set: {status: 3}})
 
       const application = await Application.findById(req.body.id);
-      const job = await Job.findById(application['jobId']);
-      await Job.updateOne({_id: job['_id']}, {$set: {currApplications: job['currApplications']-1}});
+      await Job.updateOne({_id: job['_id']}, {$inc: {currApplications: -1}});
     }
     res.json();
+  }
+  catch(err){
+    res.status(400).json({ err });
+  }
+
 });
 
 const storage = multer.diskStorage({

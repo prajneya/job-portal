@@ -34,7 +34,7 @@ router.post("/add", (req, res) => {
   newJob
     .save()
     .then(job => res.json(job))
-    .catch(err => console.log(err));
+    .catch(err => res.status(400).json({ err }));
 });
 
 // @route   POST api/jobs/edit
@@ -43,8 +43,8 @@ router.post("/add", (req, res) => {
 router.post("/edit", async (req, res) => {
 
   Job.updateOne({_id: req.body.id}, {$set: {applications: req.body.applications, positions:req.body.positions, deadline: req.body.deadline}})
-      .catch(err => console.log(err));
-  res.json();
+      .catch(err => res.status(400).json({ err }));
+  res.json({success: "Job edited Successfully"});
 
 });
 
@@ -54,11 +54,11 @@ router.post("/edit", async (req, res) => {
 router.post("/delete", async (req, res) => {
 
   Job.updateOne({_id: req.body.id}, {$set: {active: false}})
-      .catch(err => console.log(err));
+      .catch(err => res.status(400).json({ err }));
 
   Application.updateMany({jobId: req.body.id}, {$set: {status: 4}})
-              .catch(err => console.log(err));
-  res.json();
+              .catch(err => res.status(400).json({ err }));
+  res.json({success: "Job deleted Successfully"});
 
 });
 
@@ -71,7 +71,7 @@ router.get("/getAll", (req, res) => {
   Job.find({active: true, deadline: { $gt: date }})
     .sort({posting: -1})
     .then(jobs => res.json(jobs))
-    .catch(err => console.log(err));
+    .catch(err => res.status(400).json({ err }));
 });
 
 // @route   POST api/jobs/getMyJobs
@@ -83,13 +83,14 @@ router.post("/getMyJobs", (req, res) => {
   Job.find({active: true, createdBy: req.body.id, deadline: { $gt: date }})
     .sort({posting: -1})
     .then(jobs => res.json(jobs))
-    .catch(err => console.log(err));
+    .catch(err => res.status(400).json({ err }));
 });
 
 // @route   POST api/jobs/searchJobs
 // @desc    Fuzzy Search on Jobs
 // @access  Public
 router.post("/searchJobs", (req, res) => {
+    const date = new Date();
     const pipeline = [
                       {
                         '$match': {
@@ -98,6 +99,10 @@ router.post("/searchJobs", (req, res) => {
                               'title': {
                                 '$regex': req.body.query, 
                                 '$options': 'i'
+                              },
+                              active: true,
+                              deadline: {
+                                $gt: date
                               }
                             }
                           ]
@@ -107,7 +112,7 @@ router.post("/searchJobs", (req, res) => {
 
     Job.aggregate(pipeline)
         .then(jobs => res.json(jobs))
-        .catch(err => console.log(err));
+        .catch(err => res.status(400).json({ err }));
 });
 
 // @route   GET api/jobs/getSkills
@@ -117,32 +122,37 @@ router.get("/getSkills", (req, res) => {
 
   Skill.find()
     .then(skills => res.json(skills))
-    .catch(err => console.log(err));
+    .catch(err => res.status(400).json({ err }));
 });
 
 // @route   POST api/jobs/viewJob
-// @desc    View particular Job Details
+// @desc    View particular Job Details for Employer
 // @access  Public
 router.post("/viewJob", async (req, res) => {
 
-  job = await Job.findById(req.body.id);
-  applications = await Application.find({jobId: req.body.id, status: { $lt: 3 }});
-    
-  var len = applications.length;
-  var data = {
-    job: job,
-    applications: []
-  };
+  try{
+    job = await Job.findById(req.body.id);
+    applications = await Application.find({jobId: req.body.id, status: { $lt: 3 }});
+      
+    var len = applications.length;
+    var data = {
+      job: job,
+      applications: []
+    };
 
-  for(var i = 0; i<len; i++){
-    var temp_data = {};
-    temp_data['application'] = applications[i];
-    temp_data['applicant'] = await User.findById(applications[i].applicantId);
-    temp_data['applicantDets'] = await ApplicantDetails.findById(applications[i].applicantId);
-    data['applications'].push(temp_data);
+    for(var i = 0; i<len; i++){
+      var temp_data = {};
+      temp_data['application'] = applications[i];
+      temp_data['applicant'] = await User.findById(applications[i].applicantId);
+      temp_data['applicantDets'] = await ApplicantDetails.findById(applications[i].applicantId);
+      data['applications'].push(temp_data);
+    }
+
+    res.json(data);
   }
-
-  res.json(data);
+  catch (err){
+    res.status(400).json({ err });
+  }
 
 });
 
@@ -151,20 +161,25 @@ router.post("/viewJob", async (req, res) => {
 // @access  Public
 router.post("/viewApplication", async (req, res) => {
 
-  var application = await Application.findById(req.body.id);
-  var job = await Job.findById(application['jobId']);
-    
-  var data = {
-    job: job,
-    application: application,
-    hasRated: true
-  };
+  try{
+    var application = await Application.findById(req.body.id);
+    var job = await Job.findById(application['jobId']);
+      
+    var data = {
+      job: job,
+      application: application,
+      hasRated: true
+    };
 
-  if(!job['ratedBy'].includes(application['applicantId'])){
-    data['hasRated'] = false;
+    if(!job['ratedBy'].includes(application['applicantId'])){
+      data['hasRated'] = false;
+    }
+
+    res.json(data);
   }
-
-  res.json(data);
+  catch(err){
+    res.status(400).json({ err });
+  }
 
 });
 
@@ -175,7 +190,7 @@ router.post("/viewJobData", async (req, res) => {
 
   Job.findById(req.body.id)
     .then(job => res.json(job))
-    .catch(err => console.log(err));
+    .catch(err => res.status(400).json({ err }));
 
 });
 
@@ -184,38 +199,43 @@ router.post("/viewJobData", async (req, res) => {
 // @access  Public
 router.post("/viewEmployees", async (req, res) => {
 
-  jobs = await Job.find({createdBy: req.body.id});
+  try{
+    jobs = await Job.find({createdBy: req.body.id});
     
-  var len = jobs.length;
-  var data = [];
+    var len = jobs.length;
+    var data = [];
 
-  for(var i = 0; i<len; i++){
-    applications = await Application.find({jobId: jobs[i]['_id'], status: 2});
+    for(var i = 0; i<len; i++){
+      applications = await Application.find({jobId: jobs[i]['_id'], status: 2});
 
-    if(applications){
-      var applications_len = applications.length;
+      if(applications){
+        var applications_len = applications.length;
 
-      for(var j = 0; j<applications_len; j++){
-        var temp_data = {};
-        temp_data['job'] = jobs[i];
-        temp_data['application'] = applications[j];
-        temp_data['applicant'] = await User.findById(applications[j].applicantId);
-        temp_data['applicantDets'] = await ApplicantDetails.findById(applications[j].applicantId);  
-        if(temp_data['applicantDets']['ratedBy'].includes(jobs[i]['_id'])){
-          temp_data['hasRated'] = true;
-        }
-        else{
-          temp_data['hasRated'] = false;
-        }
-        data.push(temp_data);
-      } 
+        for(var j = 0; j<applications_len; j++){
+          var temp_data = {};
+          temp_data['job'] = jobs[i];
+          temp_data['application'] = applications[j];
+          temp_data['applicant'] = await User.findById(applications[j].applicantId);
+          temp_data['applicantDets'] = await ApplicantDetails.findById(applications[j].applicantId);  
+          if(temp_data['applicantDets']['ratedBy'].includes(jobs[i]['_id'])){
+            temp_data['hasRated'] = true;
+          }
+          else{
+            temp_data['hasRated'] = false;
+          }
+          data.push(temp_data);
+        } 
+      }
+      else{
+        continue;
+      }
     }
-    else{
-      continue;
-    }
+
+    res.json(data);
   }
-
-  res.json(data);
+  catch(err){
+    res.status(400).json({ err });
+  }
 
 });
 

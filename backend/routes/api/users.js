@@ -14,8 +14,11 @@ const validateLoginInput = require("../../validation/login");
 
 // Load User Model
 const User = require('../../models/User').User;
+// Load Job Model
 const Job = require('../../models/Jobs').Job;
+// Load Applicant Model
 const ApplicantDetails = require('../../models/User').applicantDetails;
+// Load Recruiter Model
 const RecruiterDetails = require('../../models/User').recruiterDetails;
 
 // @route   POST api/users/register
@@ -46,7 +49,7 @@ const { errors, isValid } = validateRegisterInput(req.body);
           newUser
             .save()
             .then(user => {
-              res.json(user);
+              // If applicant create applicant profile
               if(user.userType===0){
                 const newApplicantDetail = new ApplicantDetails({
                   _id: user.id,
@@ -60,8 +63,10 @@ const { errors, isValid } = validateRegisterInput(req.body);
 
                 newApplicantDetail
                   .save()
-                  .catch(err => console.log(err));
+                  .then(res.json(user))
+                  .catch(err => res.status(400).json({ err }));
               }
+              // If recruiter create recruiter profile
               else if(user.userType===1){
                 const newRecruiterDetail = new RecruiterDetails({
                   _id: user.id,
@@ -72,10 +77,11 @@ const { errors, isValid } = validateRegisterInput(req.body);
 
                 newRecruiterDetail
                   .save()
-                  .catch(err => console.log(err));
+                  .then(res.json(user))
+                  .catch(err => res.status(400).json({ err }));
               }
             })
-            .catch(err => console.log(err));
+            .catch(err => res.status(400).json({ err }));
         });
       });
     }
@@ -141,7 +147,7 @@ router.post("/getProfile", (req, res) => {
 
   User.findById(req.body.id)
     .then(userDetail => res.json(userDetail))
-    .catch(err => console.log(err));
+    .catch(err => res.status(400).json({ err }));
 });
 
 // @route   POST api/users/getApplicantProfile
@@ -151,7 +157,7 @@ router.post("/getApplicantProfile", (req, res) => {
 
   ApplicantDetails.findById(req.body.id)
     .then(applicantDetail => res.json(applicantDetail))
-    .catch(err => console.log(err));
+    .catch(err => res.status(400).json({ err }));
 });
 
 // @route   POST api/users/getRecruiterProfile
@@ -161,7 +167,7 @@ router.post("/getRecruiterProfile", (req, res) => {
 
   RecruiterDetails.findById(req.body.id)
     .then(recruiterDetail => res.json(recruiterDetail))
-    .catch(err => console.log(err));
+    .catch(err => res.status(400).json({ err }));
 })
 
 // @route   POST api/users/updatePersonal
@@ -171,18 +177,27 @@ router.post("/updatePersonal", async (req, res) => {
 
   const user = await User.findById(req.body.id);
 
-  if(user['userType']==0){
-    User.updateOne({_id: req.body.id}, {$set: {name: req.body.name, email: req.body.email}})
-      .then(userDetail => res.json(userDetail))
-      .catch(err => console.log(err));
-  }
-  else if(user['userType']==1){
-    await User.updateOne({_id: req.body.id}, {$set: {name: req.body.name, email: req.body.email}})
-      .then(userDetail => res.json(userDetail))
-      .catch(err => console.log(err));
+  if(user){
+    if(user['userType']==0){
+      User.updateOne({_id: req.body.id}, {$set: {name: req.body.name, email: req.body.email}})
+        .then(userDetail => res.json(userDetail))
+        .catch(err => res.status(400).json({ err }));
+    }
+    else if(user['userType']==1){
+      await User.updateOne({_id: req.body.id}, {$set: {name: req.body.name, email: req.body.email}})
+        .then(userDetail => res.json(userDetail))
+        .catch(err => res.status(400).json({ err }));
 
-    await Job.updateMany({createdBy: req.body.id}, {$set: {name: req.body.name, email: req.body.email}})
+      await Job.updateMany({createdBy: req.body.id}, {$set: {name: req.body.name, email: req.body.email}})
+    }
+    else{
+      res.status(400).json({ userError: "User type invalid!" })
+    }
   }
+  else{
+    res.status(400).json({ userError: "User not found!" })
+  }
+
 });
 
 // @route   POST api/users/updateRecruiter
@@ -192,7 +207,7 @@ router.post("/updateRecruiter", (req, res) => {
 
   RecruiterDetails.updateOne({_id: req.body.id}, {$set: {contactNum: req.body.contactNum, bio: req.body.bio}})
     .then(userDetail => res.json(userDetail))
-    .catch(err => console.log(err));
+    .catch(err => res.status(400).json({ err }));
 });
 
 const storage = multer.diskStorage({
