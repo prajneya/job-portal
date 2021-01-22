@@ -19,6 +19,7 @@ import Register from './components/Home/Register';
 import Dashboard from "./components/Applicant/Dashboard";
 import Profile from "./components/Applicant/Profile";
 import Applications from "./components/Applicant/Applications";
+import Application from "./components/Applicant/Application";
 
 import RDashboard from "./components/Recruiter/RDashboard";
 import RProfile from "./components/Recruiter/Profile";
@@ -58,6 +59,7 @@ class App extends Component {
               <PrivateApplicantRoute exact path="/dashboard" component={Dashboard} />
               <PrivateApplicantRoute exact path="/profile" component={Profile} />
               <PrivateApplicantRoute exact path="/applications" component={Applications} />
+              <PrivateApplicantRoute exact path="/application/:id" component={Application} />
               <PrivateRecruiterRoute exact path="/recruiter/dashboard" component={RDashboard} />
               <PrivateRecruiterRoute exact path="/recruiter/profile" component={RProfile} />
               <PrivateRecruiterRoute exact path="/recruiter/create" component={CreateJob} />

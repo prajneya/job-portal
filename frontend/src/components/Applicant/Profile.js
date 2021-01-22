@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { getPersonalSettings, getEducationalSettings, updatePersonalSettings, logoutUser } from "../../actions/authActions";
+import { getSkills } from "../../actions/jobAction";
 
 import { Navbar, Nav, NavDropdown } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -24,13 +25,17 @@ class Profile extends Component {
         institution: "",
         start: "",
         end: "",
-        resume: -1
+        resume: -1,
+        skills: [],
+        other: false,
+        selectedSkill: "C++"
       };
   }
 
   componentDidMount = () => {
     this.props.getPersonalSettings({"id": this.props.auth.user.id});
     this.props.getEducationalSettings({"id": this.props.auth.user.id});
+    this.props.getSkills();
   };
 
   onLogoutClick = e => {
@@ -148,8 +153,40 @@ class Profile extends Component {
       });
   };
 
+  addSkill = () => {
+    axios
+      .post('/api/applicant/addSkill', {
+        "id": this.props.auth.user.id,
+        "skill": this.state.selectedSkill,
+      })
+      .then(res => {
+        console.log(res);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  };
+
+  handleSkillChange = async () => {
+    var sel_value = document.getElementById("skillDropDown").value;
+    if(sel_value==="0"){
+      await this.setState({
+        other: true,
+      })
+    }
+    else{
+      await this.setState({
+        selectedSkill: sel_value,
+        other: false,
+      })
+    }
+  };
+
   render() {
     const { user, personal, educational } = this.props.auth;
+    const options = this.props.job.skills;
+
+    console.log(educational)
 
     return (
       <>
@@ -231,14 +268,18 @@ class Profile extends Component {
                     {educational.skills.length > 0 ? "" : <div className="text-danger text-left ml-2">You do not have any skills added.</div>}
                     <div className="tags ml-1">
                       {educational.skills.map(skill => (
-                      <div className="tag mr-2 mt-2 px-3 py-1 bg-success text-white">English</div>
+                      <div className="tag mr-2 mt-2 px-3 py-1 bg-success text-white">{skill}</div>
                       ))}
-                    </div>
+                    </div> <br/>
                     <div className="add-institution desktop-only">
-                      <div className="form-group mt-2">
-                        <input type="text" className="m-1 mt-2 pl-3 form-control bg-white w-100 d-inline-block" id="text" placeholder="Enter language name" />
-                      </div>
-                      <button className="float-right ml-5 btn rounded-pill btn-info">ADD SKILL ></button>
+                      <button className="float-right ml-2 btn rounded-pill btn-info" onClick={this.addSkill}>ADD SKILL ></button>
+                      {this.state.other ? <input type="text" className="float-right m-1 pl-3 form-control bg-white half-width d-inline-block" id="selectedSkill" onChange={this.onChange} placeholder="Enter new skill name" /> : ""}
+                      <select className="float-right" onChange={this.handleSkillChange} id="skillDropDown">
+                        {options.map(option => (
+                          <option value={option.label}>{option.label}</option>
+                        ))}
+                          <option value="0">Other</option>
+                      </select>
                     </div>
                   </div>
                   <div className="resume my-5">
@@ -268,14 +309,17 @@ Profile.propTypes = {
   auth: PropTypes.object.isRequired,
   getPersonalSettings: PropTypes.func.isRequired,
   getEducationalSettings: PropTypes.func.isRequired,
-  updatePersonalSettings: PropTypes.func.isRequired
+  updatePersonalSettings: PropTypes.func.isRequired,
+  getSkills: PropTypes.func.isRequired,
+  skills: PropTypes.object.isRequired
 };
 const mapStateToProps = state => ({
+  job: state.job,
   auth: state.auth,
   personal: state.personal,
   educational: state.educational
 });
 export default connect(
   mapStateToProps,
-  { getPersonalSettings, getEducationalSettings, updatePersonalSettings, logoutUser }
+  { getPersonalSettings, getEducationalSettings, updatePersonalSettings, getSkills, logoutUser }
 )(Profile);

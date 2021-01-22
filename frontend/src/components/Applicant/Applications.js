@@ -41,6 +41,10 @@ class Applications extends Component {
 
   dashboardCallback = () => {
     this.props.history.push('/dashboard')
+  };
+
+  applicationViewCallback = (id) => {
+    this.props.history.push('/application/'+id)
   }
 
   render() {
@@ -94,7 +98,7 @@ class Applications extends Component {
                   {this.state.displayApplications.map(application_item => ( 
                     <div className="col-lg-4 my-2">
                       <div className="job-card p-3">
-                        <div className="job-image"><img src="images/astronaut.png"/></div>
+                        <div className="job-image"><img src={"images/"+application_item['job']['image']}/></div>
                         <br/>
                         <div className="recruiter-name">{application_item['job']['name']}</div>
                         <div className="job-header"><strong>{application_item['job']['title']}</strong></div>
@@ -118,7 +122,7 @@ class Applications extends Component {
                               {application_item['application']['status'] === 4 ? <button className="btn btn-primary py-2 px-3 w-100 d-inline-block bg-warning"><strong>Depriciated</strong></button> : "" }
                             </div>
                             <div className="col-md-6 mt-2">
-                              <button className="btn light-button py-2 px-3 w-100 d-inline-block">View Submission</button>
+                              <button className="btn light-button py-2 px-3 w-100 d-inline-block" onClick={() => this.applicationViewCallback(application_item['application']['_id'])}>View Submission</button>
                             </div>
                           </div>
                         </div>

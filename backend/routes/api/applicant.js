@@ -32,8 +32,26 @@ router.post("/addInstitution", async (req, res) => {
 
         user
           .save()
-          .then(job => res.json(job))
+          .then(userinstance => res.json(userinstance))
           .catch(err => console.log(err));
+    }
+});
+
+// @route   POST api/applicant/addSkill
+// @desc    Add Applicant Skill
+// @access  Public
+router.post("/addSkill", async (req, res) => {
+    
+    const user = await ApplicantDetails.findById(req.body.id);
+    
+    if(user){
+        if(!user.skills.includes(req.body.skill)){
+          user.skills.unshift(req.body.skill);
+          user
+          .save()
+          .then(userinstance => res.json(userinstance))
+          .catch(err => console.log(err));
+        }
     }
 });
 
@@ -107,7 +125,7 @@ router.post("/viewMyApplications", async (req, res) => {
 });
 
 // @route   POST api/applicant/changeRating
-// @desc    Change Employee's Ratings
+// @desc    Change Employer's Ratings
 // @access  Public
 router.post("/changeRating", async (req, res) => {
 
@@ -132,9 +150,37 @@ router.post("/changeRating", async (req, res) => {
       .catch(err => console.log(err));
   }
 
+});
 
+// @route   POST api/applicant/changeJobRating
+// @desc    Change Job's Ratings
+// @access  Public
+router.post("/changeJobRating", async (req, res) => {
+
+  const identity = req.body.id;
+  const job = await Job.findById(req.body.jobId);
+
+  if(job['ratedBy'].includes(req.body.id)){
+    throw new Error('Already Rated!');
+  }
+
+  if(job){
+
+    if(job['rating']==-1)
+      await Job.updateOne({'_id': req.body.jobId}, {$set: {'rating': req.body.rating}});
+    else
+      await Job.updateOne({'_id': req.body.jobId}, {$inc: {'rating': req.body.rating}});
+
+    job.ratedBy.unshift(identity);
+    job
+      .save()
+      .then(job_item => res.json(job_item))
+      .catch(err => console.log(err));
+  }
 
 });
+
+
 
 // @route   POST api/applicant/changeApplicationStatus
 // @desc    Change application status

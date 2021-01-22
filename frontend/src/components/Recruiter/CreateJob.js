@@ -86,7 +86,7 @@ class CreateJob extends Component {
   render() {
     const { user } = this.props.auth;
 
-    const options = this.props.job.skills
+    const options = this.props.job.skills;
 
     return (
 

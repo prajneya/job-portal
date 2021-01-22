@@ -290,7 +290,7 @@ class Employees extends Component {
                         {job_item['job']['jobType'] === 1 ? <div className="tag mr-2 mt-2 px-3 py-1">Part Time Employee</div> : "" }
                         {job_item['job']['jobType'] === 2 ? <div className="tag mr-2 mt-2 px-3 py-1">Work from Home Employee</div> : "" }
                       </div> <br/>
-                      {job_item['hasRated'] ? <div className="text-info">You have already rated this employee.</div> :
+                      {job_item['hasRated'] ? <div className="text-info">You have already rated this employer.</div> :
                       <div>
                       <StarRatings
                         rating={this.state.rating}

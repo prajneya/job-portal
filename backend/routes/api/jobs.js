@@ -146,6 +146,28 @@ router.post("/viewJob", async (req, res) => {
 
 });
 
+// @route   POST api/jobs/viewApplication
+// @desc    View particular Application Details
+// @access  Public
+router.post("/viewApplication", async (req, res) => {
+
+  var application = await Application.findById(req.body.id);
+  var job = await Job.findById(application['jobId']);
+    
+  var data = {
+    job: job,
+    application: application,
+    hasRated: true
+  };
+
+  if(!job['ratedBy'].includes(application['applicantId'])){
+    data['hasRated'] = false;
+  }
+
+  res.json(data);
+
+});
+
 // @route   POST api/jobs/viewJobData
 // @desc    View particular Job Details for edit
 // @access  Public
