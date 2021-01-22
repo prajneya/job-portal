@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { logoutUser } from "../../actions/authActions";
 import axios from "axios";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faStar, faSortNumericUp, faSortNumericDown, faSearch } from '@fortawesome/free-solid-svg-icons'
+import { faStar, faSortNumericUp, faSortNumericDown, faSearch, faHeart } from '@fortawesome/free-solid-svg-icons'
 import Slider from '@material-ui/core/Slider';
 
 import Swal from 'sweetalert2';
@@ -12,7 +12,7 @@ import Topbar from './Topbar.js';
 import { getJobs } from './../../actions/jobAction.js';
 import './Dashboard.css';
 
-class Dashboard extends Component {
+class Job extends Component {
 
   constructor() {
       super();
@@ -22,12 +22,24 @@ class Dashboard extends Component {
         displayjobs: [],
         firstCheck: 0,
         asc: 1,
-        search: ""
+        search: "",
+        display: {}
       };
   }
 
   componentDidMount = () => {
     this.props.getJobs();
+
+    var state_current = this;
+
+    axios
+      .post("/api/jobs/viewJob", {"id": this.props.match.params.id})
+      .then(res => {
+         console.log(res.data);
+         state_current.setState({
+          display: res.data
+        })
+      });
   };
 
   sort_by_key = (array, key) => {
@@ -59,7 +71,6 @@ class Dashboard extends Component {
   };
 
   filterJobType = () => {
-    console.log(this.state.jobs)
     var ft = document.getElementById("fulltime");
     var pt = document.getElementById("parttime");
     var wfh = document.getElementById("wfh");
@@ -219,8 +230,9 @@ class Dashboard extends Component {
     }
   };
 
-  jobCallback = (jobId) => {
-    this.props.history.push('/job/'+jobId);
+  jobCallback = async (jobId) => {
+    await this.props.history.push('/job/'+jobId);
+    window.location.reload(false);
   };
 
 
@@ -308,39 +320,96 @@ class Dashboard extends Component {
               </div> 
               <div className="jobs-listing mt-5">
                 <div className="row">
-                  {this.state.displayjobs.map(job_item => ( 
-                  <div className="col-lg-4 my-2">
-                    <div className="job-card p-3">
-                      <div className="job-image"><img src={"images/"+job_item['image']} alt="job"/></div>
-                      <br/>
-                      <div className="ellipsis">{job_item['rating'] === -1 ? "UNRATED" : job_item['rating']/job_item['ratedBy'].length} &nbsp;<i><FontAwesomeIcon icon={faStar} color="#ffd500" /></i></div>
-                      <div className="recruiter-name">{job_item['name']}</div>
-                      <div className="job-header"><strong>{job_item['title']}</strong></div>
-                      <div className="recruiter-name"><span style={{"color": "tomato"}}>Ends at: {job_item['deadline']}</span></div>
-                      <br/>
-                      <p className="text-secondary">{job_item['description']} </p>
-                      <div className="tags">
-                        {job_item['jobType'] === 0 ? <div className="tag mr-2 mt-2 px-3 py-1">Full Time</div> : "" }
-                        {job_item['jobType'] === 1 ? <div className="tag mr-2 mt-2 px-3 py-1">Part Time</div> : "" }
-                        {job_item['jobType'] === 2 ? <div className="tag mr-2 mt-2 px-3 py-1">Work from Home</div> : "" }
-                        <div className="tag mr-2 mt-2 px-3 py-1">{job_item['duration']} months</div>
-                        <div className="tag mr-2 mt-2 px-3 py-1">₹ {job_item['salary']}</div>
-                      </div>
-                      <div className="action-buttons mt-4">
-                        <div className="row">
-                          <div className="col-md-6 mt-2">
-                            { job_item['currApplications'] === job_item['applications'] ?
-                            <button className="btn btn-warning py-2 px-3 w-100 d-inline-block"><strong>Full</strong></button>
-                            : <button className="btn btn-primary py-2 px-3 w-100 d-inline-block" onClick={() => this.applyJob(job_item['_id'])}><strong>Apply Now</strong></button>}
-                          </div>
-                          <div className="col-md-6 mt-2">
-                            <button className="btn light-button py-2 px-3 w-100 d-inline-block" onClick={() => this.jobCallback(job_item['_id'])}>View More</button>
+                  <div className="col-lg-4 my-2 desktop-only job-list-scroll">
+                    {this.state.displayjobs.map(job_item => ( 
+                    <div className="col-lg-12 my-2">
+                      <div className="job-card p-3">
+                        <div className="job-image"><img src={"../../images/"+job_item['image']} alt="job"/></div>
+                        <br/>
+                        <div className="ellipsis">{job_item['rating'] === -1 ? "UNRATED" : job_item['rating']/job_item['ratedBy'].length} &nbsp;<i><FontAwesomeIcon icon={faStar} color="#ffd500" /></i></div>
+                        <div className="recruiter-name">{job_item['name']}</div>
+                        <div className="job-header"><strong>{job_item['title']}</strong></div>
+                        <div className="recruiter-name"><span style={{"color": "tomato"}}>Ends at: {job_item['deadline']}</span></div>
+                        <br/>
+                        <p className="text-secondary">{job_item['description']} </p>
+                        <div className="tags">
+                          {job_item['jobType'] === 0 ? <div className="tag mr-2 mt-2 px-3 py-1">Full Time</div> : "" }
+                          {job_item['jobType'] === 1 ? <div className="tag mr-2 mt-2 px-3 py-1">Part Time</div> : "" }
+                          {job_item['jobType'] === 2 ? <div className="tag mr-2 mt-2 px-3 py-1">Work from Home</div> : "" }
+                          <div className="tag mr-2 mt-2 px-3 py-1">{job_item['duration']} months</div>
+                          <div className="tag mr-2 mt-2 px-3 py-1">₹ {job_item['salary']}</div>
+                        </div>
+                        <div className="action-buttons mt-4">
+                          <div className="row">
+                            <div className="col-md-6 mt-2">
+                              { job_item['currApplications'] === job_item['applications'] ?
+                              <button className="btn btn-warning py-2 px-3 w-100 d-inline-block"><strong>Full</strong></button>
+                              : <button className="btn btn-primary py-2 px-3 w-100 d-inline-block" onClick={() => this.applyJob(job_item['_id'])}><strong>Apply Now</strong></button>}
+                            </div>
+                            <div className="col-md-6 mt-2">
+                              <button className="btn light-button py-2 px-3 w-100 d-inline-block" onClick={() => this.jobCallback(job_item['_id'])}>View More</button>
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
+                    ))}
                   </div>
-                  ))}
+                  <div className="col-lg-8 my-2 job-list-scroll">
+                    <div className="job-detailed-card my-2">
+                      <div className="timeline">
+                        <div className="timeline-cover">
+                          <img src="../../images/cover.jpg" alt="job"/>
+                        </div>
+                        <div className="timeline-profile-picture">
+                          <img src={"../../images/"+(this.state.display.job ? this.state.display.job.image : "")} alt="job"/>
+                        </div>
+                      </div>
+                      <div className="job-detailed-content p-5">
+                        <div className="float-left job-detailed-header">{this.state.display.job ? this.state.display.job.title : ""}</div>
+                        <div className="desktop-only text-right"><i className="detailed-icon mx-2"><FontAwesomeIcon icon={faHeart} color="tomato" size="2x" /></i></div>
+                        <div className="mt-2 text-info"><span className="job-detailed-recruiter">{this.state.display.job ? this.state.display.job.name : ""}</span> <span className="text-secondary">• {this.state.display.job ? this.state.display.job.email : ""}</span></div>
+                        <div className="text-right text-secondary">{this.state.display.job ? this.state.display.job.posting : ""} <strong> • {this.state.display.job ? this.state.display.job.currApplications : ""} applicants </strong></div>
+
+                        <div className="mt-5 table-responsive">
+                          <table className="table table-hover">
+                            <thead>
+                              <tr>
+                                <th scope="col" className="text-center">DURATION</th>
+                                <th scope="col" className="text-center">MAX NO. OF APPLICATIONS</th>
+                                <th scope="col" className="text-center">MAX NO. OF POSITIONS</th>
+                                <th scope="col" className="text-center">OFFERED SALARY</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td className="text-center">{this.state.display.job ? this.state.display.job.duration : ""} Months</td>
+                                <td className="text-center">{this.state.display.job ? this.state.display.job.applications : ""}</td>
+                                <td className="text-center">{this.state.display.job ? this.state.display.job.positions : ""}</td>
+                                <td className="text-center">₹ {this.state.display.job ? this.state.display.job.salary : ""} / Month</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+
+                        <h5 className="mt-3"><strong>Overview</strong></h5>
+                        <p className="text-secondary">{this.state.display.job ? this.state.display.job.description : ""}</p>
+                      
+                        <h5 className="mt-3"><strong>Job Description</strong></h5>
+                        <ul className="arrow">
+                          <li>The job requires a dedication of {this.state.display.job ? this.state.display.job.duration : ""} months</li>
+                          <li>Deadline for application: {this.state.display.job ? this.state.display.job.deadline : ""}</li>
+                          <li>Applicants are required to know the following skills: <br/>
+                            {this.state.display.job && this.state.display.job.skillset.map(skill => (
+                              <div className="tag mr-2 mt-2 px-3 py-1 bg-success text-white">{skill}</div>
+                            ))}
+                          </li>
+                          <li>{this.state.display.job ? this.state.display.job.jobType === 0 ? "This is a full time job" : this.state.display.job.jobType === 1 ? "This is a part time job" : "This is a work-from-home job." : ""}</li>
+                        </ul>
+
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -353,7 +422,7 @@ class Dashboard extends Component {
   }
 }
 
-Dashboard.propTypes = {
+Job.propTypes = {
   logoutUser: PropTypes.func.isRequired,
   getJobs: PropTypes.func.isRequired,
   auth: PropTypes.object.isRequired
@@ -365,4 +434,4 @@ const mapStateToProps = state => ({
 export default connect(
   mapStateToProps,
   { getJobs, logoutUser }
-)(Dashboard);
+)(Job);

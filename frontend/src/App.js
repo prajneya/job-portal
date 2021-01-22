@@ -17,6 +17,7 @@ import PublicRoute from "./components/private-route/PublicRoute";
 import Home from './components/Home/Home';
 import Register from './components/Home/Register';
 import Dashboard from "./components/Applicant/Dashboard";
+import ApplicantJob from "./components/Applicant/Job";
 import Profile from "./components/Applicant/Profile";
 import Applications from "./components/Applicant/Applications";
 import Application from "./components/Applicant/Application";
@@ -57,6 +58,7 @@ class App extends Component {
               <PublicRoute path="/" component={Home} exact />
               <PublicRoute path="/register" component={Register} exact />
               <PrivateApplicantRoute exact path="/dashboard" component={Dashboard} />
+              <PrivateApplicantRoute exact path="/job/:id" component={ApplicantJob} />
               <PrivateApplicantRoute exact path="/profile" component={Profile} />
               <PrivateApplicantRoute exact path="/applications" component={Applications} />
               <PrivateApplicantRoute exact path="/application/:id" component={Application} />
