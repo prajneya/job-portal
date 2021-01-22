@@ -556,7 +556,7 @@ class Job extends Component {
                         <div className="job-header"><strong>{job_item['title']}</strong></div>
                         <div className="recruiter-name"><span style={{"color": "green"}}>Posted at: {job_item['posting']}</span></div>
                         <br/>
-                        <p className="text-secondary">{job_item['description']} </p>
+                        <p className="text-secondary">{job_item['description'].length < 125 ? job_item['description'] : job_item['description'].substring(0, 125) + "..."}</p>
                         <div className="tags">
                           <div className="tag mr-2 mt-2 px-3 py-1">{job_item['currApplications']} Applicants</div>
                           <div className="tag mr-2 mt-2 px-3 py-1">{job_item['positions']} Positions</div>

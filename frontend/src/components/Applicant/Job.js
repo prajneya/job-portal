@@ -393,7 +393,7 @@ class Job extends Component {
                         </div>
 
                         <h5 className="mt-3"><strong>Overview</strong></h5>
-                        <p className="text-secondary">{this.state.display.job ? this.state.display.job.description : ""}</p>
+                        <p className="text-secondary">{this.state.display.job ? this.state.display.job.description < 125 ? this.state.display.job.description : this.state.display.job.description.substring(0, 125) + "..." : ""}</p>
                       
                         <h5 className="mt-3"><strong>Job Description</strong></h5>
                         <ul className="arrow">

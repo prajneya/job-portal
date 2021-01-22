@@ -20,7 +20,8 @@ class Applications extends Component {
       this.state = {
         firstCheck: 0,
         displayApplications: [],
-        applications: []
+        applications: [],
+        filter: "All"
       };
   }
 
@@ -37,6 +38,45 @@ class Applications extends Component {
     this.setState({
       value: newValue
     });
+  };
+
+  filterApplications = (event) => {
+    if(event.target.id==="all"){
+      this.setState({
+        filter: "All",
+        displayApplications: this.state.applications
+      })
+    }
+    else if(event.target.id==="pending"){
+      this.setState({
+        filter: "Pending",
+        displayApplications: this.state.applications.filter(item => (item['application']['status'] === 0))
+      })
+    }
+    else if(event.target.id==="shortlisted"){
+      this.setState({
+        filter: "Shortlisted",
+        displayApplications: this.state.applications.filter(item => (item['application']['status'] === 1))
+      })
+    }
+    else if(event.target.id==="accepted"){
+      this.setState({
+        filter: "Accepted",
+        displayApplications: this.state.applications.filter(item => (item['application']['status'] === 2))
+      })
+    }
+    else if(event.target.id==="rejected"){
+      this.setState({
+        filter: "Rejected",
+        displayApplications: this.state.applications.filter(item => (item['application']['status'] === 3))
+      })
+    }
+    else if(event.target.id==="depreciated"){
+      this.setState({
+        filter: "Depreciated",
+        displayApplications: this.state.applications.filter(item => (item['application']['status'] === 4))
+      })
+    }
   };
 
   dashboardCallback = () => {
@@ -74,25 +114,33 @@ class Applications extends Component {
               <div className="filter-header mt-3 mx-2">
                 <label>Your Applications</label>
                 <div class="radio radio-primary mt-2">
-                  <input id="all" type="radio" name="applications" />
+                  <input id="all" type="radio" name="applications" onClick={this.filterApplications} defaultChecked/>
                   <label for="all" className="filter-label text-secondary">All Applications</label>
                 </div>
                 <div class="radio radio-primary">
-                  <input id="pending" type="radio" name="applications" />
+                  <input id="pending" type="radio" name="applications" onClick={this.filterApplications}  />
                   <label for="pending" className="filter-label text-secondary">Pending Applications</label>
                 </div>
                 <div class="radio radio-primary">
-                  <input id="rejected" type="radio" name="applications" />
+                  <input id="shortlisted" type="radio" name="applications" onClick={this.filterApplications}  />
+                  <label for="shortlisted" className="filter-label text-secondary">Shortlisted Applications</label>
+                </div>
+                <div class="radio radio-primary">
+                  <input id="rejected" type="radio" name="applications" onClick={this.filterApplications}  />
                   <label for="rejected" className="filter-label text-secondary">Rejected Applications</label>
                 </div>
                 <div class="radio radio-primary">
-                  <input id="accepted" type="radio" name="applications" />
+                  <input id="accepted" type="radio" name="applications" onClick={this.filterApplications}  />
                   <label for="accepted" className="filter-label text-secondary">Accepted Applications</label>
+                </div>
+                <div class="radio radio-primary">
+                  <input id="depreciated" type="radio" name="applications" onClick={this.filterApplications}  />
+                  <label for="depreciated" className="filter-label text-secondary">Depreciated Applications</label>
                 </div>
               </div>
             </div>
             <div className="col-lg-10">
-              <h4 className="jobs-header">Showing All Applications</h4>
+              <h4 className="jobs-header">Showing {this.state.filter} Applications</h4>
               <div className="jobs-listing mt-5">
                 <div class="row">
                   {this.state.displayApplications.map(application_item => ( 
@@ -104,7 +152,7 @@ class Applications extends Component {
                         <div className="job-header"><strong>{application_item['job']['title']}</strong></div>
                         <div className="recruiter-name text-success">Submitted at: {application_item['application']['createdAt']}</div>
                         <br/>
-                        <p className="text-secondary">{application_item['job']['description']} </p>
+                        <p className="text-secondary">{application_item['job']['description'].length < 125 ? application_item['job']['description'] : application_item['job']['description'].substring(0, 125) + "..."} </p>
                         <div className="tags">
                         {application_item['job']['jobType'] === 0 ? <div className="tag mr-2 mt-2 px-3 py-1">Full Time</div> : "" }
                         {application_item['job']['jobType'] === 1 ? <div className="tag mr-2 mt-2 px-3 py-1">Part Time</div> : "" }
