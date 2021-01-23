@@ -62,16 +62,39 @@ router.post("/delete", async (req, res) => {
 
 });
 
-// @route   GET api/jobs/getAll
+// @route   POST api/jobs/getAll
 // @desc    Get all Jobs
 // @access  Public
-router.get("/getAll", (req, res) => {
+router.post("/getAll", async (req, res) => {
 
-  const date = new Date();
-  Job.find({active: true, deadline: { $gt: date }})
-    .sort({posting: -1})
-    .then(jobs => res.json(jobs))
-    .catch(err => res.status(400).json({ err }));
+  try{
+    const date = new Date();
+    const jobs = await Job.find({active: true, deadline: { $gt: date }}).sort({posting: -1});
+
+    const data = []
+
+    var len = jobs.length;
+
+    for(var i = 0; i<len; i++){
+      var temp_data = {};
+      temp_data['job'] = jobs[i];
+      const application = await Application.find({applicantId: req.body.userId, jobId: jobs[i]['_id'], status: { $lt: 2 }});
+      console.log(application)
+      if(application.length!=0){
+        temp_data['hasApplied'] = true;
+      }
+      else{
+        temp_data['hasApplied'] = false;
+      }
+      data.push(temp_data);
+    }
+
+    res.json(data);
+  }
+  catch(err){
+    res.status(400).json({ err });
+  }
+
 });
 
 // @route   POST api/jobs/getMyJobs

@@ -28,7 +28,7 @@ class Job extends Component {
   }
 
   componentDidMount = () => {
-    this.props.getJobs();
+    this.props.getJobs({"userId": this.props.auth.user.id});
 
     var state_current = this;
 
@@ -352,30 +352,30 @@ class Job extends Component {
                     {this.state.displayjobs.map(job_item => ( 
                     <div className="col-lg-12 my-2">
                       <div className="job-card p-3">
-                        <div className="job-image"><img src={"../../images/"+job_item['image']} alt="job"/></div>
+                        <div className="job-image"><img src={"../../images/"+job_item['job']['image']} alt="job"/></div>
                         <br/>
-                        <div className="ellipsis">{job_item['rating'] === -1 ? "UNRATED" : job_item['rating']/job_item['ratedBy'].length} &nbsp;<i><FontAwesomeIcon icon={faStar} color="#ffd500" /></i></div>
-                        <div className="recruiter-name">{job_item['name']}</div>
-                        <div className="job-header"><strong>{job_item['title']}</strong></div>
-                        <div className="recruiter-name"><span style={{"color": "tomato"}}>Ends at: {job_item['deadline']}</span></div>
+                        <div className="ellipsis">{job_item['job']['rating'] === -1 ? "UNRATED" : job_item['job']['rating']/job_item['job']['ratedBy'].length} &nbsp;<i><FontAwesomeIcon icon={faStar} color="#ffd500" /></i></div>
+                        <div className="recruiter-name">{job_item['job']['name']}</div>
+                        <div className="job-header"><strong>{job_item['job']['title']}</strong></div>
+                        <div className="recruiter-name"><span style={{"color": "tomato"}}>Ends at: {job_item['job']['deadline']}</span></div>
                         <br/>
-                        <p className="text-secondary">{job_item['description']} </p>
+                        <p className="text-secondary">{job_item['job']['description']} </p>
                         <div className="tags">
-                          {job_item['jobType'] === 0 ? <div className="tag mr-2 mt-2 px-3 py-1">Full Time</div> : "" }
-                          {job_item['jobType'] === 1 ? <div className="tag mr-2 mt-2 px-3 py-1">Part Time</div> : "" }
-                          {job_item['jobType'] === 2 ? <div className="tag mr-2 mt-2 px-3 py-1">Work from Home</div> : "" }
-                          <div className="tag mr-2 mt-2 px-3 py-1">{job_item['duration']} months</div>
-                          <div className="tag mr-2 mt-2 px-3 py-1">₹ {job_item['salary']}</div>
+                          {job_item['job']['jobType'] === 0 ? <div className="tag mr-2 mt-2 px-3 py-1">Full Time</div> : "" }
+                          {job_item['job']['jobType'] === 1 ? <div className="tag mr-2 mt-2 px-3 py-1">Part Time</div> : "" }
+                          {job_item['job']['jobType'] === 2 ? <div className="tag mr-2 mt-2 px-3 py-1">Work from Home</div> : "" }
+                          <div className="tag mr-2 mt-2 px-3 py-1">{job_item['job']['duration']} months</div>
+                          <div className="tag mr-2 mt-2 px-3 py-1">₹ {job_item['job']['salary']}</div>
                         </div>
                         <div className="action-buttons mt-4">
                           <div className="row">
                             <div className="col-md-6 mt-2">
-                              { job_item['currApplications'] === job_item['applications'] ?
+                              { job_item['hasApplied'] ? <button className="btn btn-danger py-2 px-3 w-100 d-inline-block"><strong>Already Applied</strong></button> : job_item['job']['currApplications'] === job_item['job']['applications'] ?
                               <button className="btn btn-warning py-2 px-3 w-100 d-inline-block"><strong>Full</strong></button>
-                              : <button className="btn btn-primary py-2 px-3 w-100 d-inline-block" onClick={() => this.applyJob(job_item['_id'])}><strong>Apply Now</strong></button>}
+                              : <button className="btn btn-primary py-2 px-3 w-100 d-inline-block" onClick={() => this.applyJob(job_item['job']['_id'])}><strong>Apply Now</strong></button>}
                             </div>
                             <div className="col-md-6 mt-2">
-                              <button className="btn light-button py-2 px-3 w-100 d-inline-block" onClick={() => this.jobCallback(job_item['_id'])}>View More</button>
+                              <button className="btn light-button py-2 px-3 w-100 d-inline-block" onClick={() => this.jobCallback(job_item['job']['_id'])}>View More</button>
                             </div>
                           </div>
                         </div>

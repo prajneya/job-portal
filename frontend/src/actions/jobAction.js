@@ -2,10 +2,10 @@ import axios from "axios";
 import { GET_ERRORS, GET_JOBS, GET_RECRUITER_JOBS, GET_RECRUITER_EMPLOYEES, GET_SKILLS, GET_APPLICANT_APPLICATIONS, JOBS_LOADING } from "./types";
 
 // Get All Jobs
-export const getJobs = () => dispatch => {
+export const getJobs = userData => dispatch => {
   dispatch(setJobsLoading());
   axios
-    .get("/api/jobs/getAll")
+    .post("/api/jobs/getAll", userData)
     .then(res =>
       dispatch({
         type: GET_JOBS,

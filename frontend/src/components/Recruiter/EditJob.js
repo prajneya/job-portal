@@ -38,8 +38,8 @@ class EditJob extends Component {
           jobData: res.data
         })
         await this.setState({
-          moa: this.state.jobData.applications,
-          mop: this.state.jobData.positions,
+          moa: String(this.state.jobData.applications),
+          mop: String(this.state.jobData.positions),
           deadline: this.state.jobData.deadline
         })
       });

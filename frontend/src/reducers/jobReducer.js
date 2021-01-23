@@ -11,6 +11,7 @@ const initialState = {
 export default function(state = initialState, action) {
   switch (action.type) {
     case GET_JOBS:
+      console.log("JOB PAYLOAD", action.payload)
       return {
         ...state,
         job: action.payload,
