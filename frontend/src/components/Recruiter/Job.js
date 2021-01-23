@@ -337,24 +337,38 @@ class Job extends Component {
         if(result.isConfirmed){
           axios
             .post("/api/applicant/changeApplicationStatus", {"change": "shortlist", "id": application['_id']})
-            .then(() => {
-              Swal.fire({
+            .then(async () => {
+              await Swal.fire({
                 icon: 'success',
                 title: 'Shortlisted',
                 text: 'The application is shortlisted!',
               })
-            });
+              window.location.reload(false);
+            })
+            .catch(err => Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: 'Something went wrong!',
+              footer: JSON.stringify(err.response.data)
+            }));
         }
         else if(result.isDismissed){
           axios
             .post("/api/applicant/changeApplicationStatus", {"change": "reject", "id": application['_id']})
-            .then(() => {
-              Swal.fire({
+            .then(async () => {
+              await Swal.fire({
                 icon: 'error',
                 title: 'Rejected',
                 text: 'The application is rejected!',
               })
-            });
+              window.location.reload(false);
+            })
+            .catch(err => Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: 'Something went wrong!',
+              footer: JSON.stringify(err.response.data)
+            }));
         }
       })
     }
@@ -415,7 +429,7 @@ class Job extends Component {
               <label>STAGE OF APPLICATION</label>
               <p>Shortlisted</p>
               <label>RESUME</label>
-              <p><a href=${"../../resume/"+applicant['resume']}>DOWNLOAD</a></p>
+              <p><a href=${applicant['resume']=="" ? "" : "../../resume/"+applicant['resume']}>${applicant['resume']=="" ? "NO RESUME" : "DOWNLOAD"}</a></p>
               `,
         showCancelButton: true,
         showDenyButton: true,
@@ -434,24 +448,38 @@ class Job extends Component {
         if(result.isConfirmed){
           axios
             .post("/api/applicant/changeApplicationStatus", {"change": "accept", "id": application['_id']})
-            .then(() => {
-              Swal.fire({
+            .then(async () => {
+              await Swal.fire({
                 icon: 'success',
                 title: 'Accepted',
                 text: 'The application is accepted!',
               })
-            });
+              window.location.reload(false);
+            })
+            .catch(err => Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: 'Something went wrong!',
+              footer: JSON.stringify(err.response.data)
+            }));
         }
         else if(result.isDismissed){
           axios
             .post("/api/applicant/changeApplicationStatus", {"change": "reject", "id": application['_id']})
-            .then(() => {
-              Swal.fire({
+            .then(async () => {
+              await Swal.fire({
                 icon: 'error',
                 title: 'Rejected',
                 text: 'The application is rejected!',
               })
-            });
+              window.location.reload(false);
+            })
+            .catch(err => Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: 'Something went wrong!',
+              footer: JSON.stringify(err.response.data)
+            }));
         }
       })
     }

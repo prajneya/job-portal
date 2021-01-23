@@ -60,6 +60,17 @@ class Profile extends Component {
   onSubmit = async e => {
       e.preventDefault();
 
+      if(this.state.name===-1){
+        await this.setState({
+          name: this.props.auth.personal.name
+        })
+      }
+      if(this.state.email===-1){
+        await this.setState({
+          email: this.props.auth.personal.email
+        })
+      }
+
       if(this.state.name.trim()===""){
         await Swal.fire({
             icon: 'error',
@@ -78,17 +89,6 @@ class Profile extends Component {
             footer: 'Dont keep too many secrets.'
         })
         return;
-      }
-
-      if(this.state.name===-1){
-        await this.setState({
-          name: this.props.auth.personal.name
-        })
-      }
-      if(this.state.email===-1){
-        await this.setState({
-          email: this.props.auth.personal.email
-        })
       }
       
       const userData = {

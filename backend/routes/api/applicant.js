@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const keys = require("../../config/keys");
+const mail = require('nodemailer')
 
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
@@ -36,7 +37,7 @@ router.post("/addInstitution", async (req, res) => {
           .catch(err => res.status(400).json({ err }));
     }
     else{
-      res.status(400).json({ user: "User not found!" })
+      return res.status(400).json({ user: "User not found!" })
     }
 });
 
@@ -57,7 +58,7 @@ router.post("/addSkill", async (req, res) => {
         }
     }
     else{
-      res.status(400).json({ user: "User not found!" })
+      return res.status(400).json({ user: "User not found!" })
     }
 });
 
@@ -148,7 +149,7 @@ router.post("/changeRating", async (req, res) => {
   const user = await ApplicantDetails.findById(req.body.id);
 
   if(user['ratedBy'].includes(req.body.id)){
-    res.status(400).json({ rating: "Already rated" });
+    return res.status(400).json({ rating: "Already rated" });
   }
 
   if(user){
@@ -165,7 +166,7 @@ router.post("/changeRating", async (req, res) => {
       .catch(err => res.status(400).json({ err }));
   }
   else{
-    res.status(400).json({ user: "User not found" });
+    return res.status(400).json({ user: "User not found" });
   }
 
 });
@@ -179,7 +180,7 @@ router.post("/changeJobRating", async (req, res) => {
   const job = await Job.findById(req.body.jobId);
 
   if(job['ratedBy'].includes(req.body.id)){
-    res.status(400).json({ rating: "Already rated" });
+    return res.status(400).json({ rating: "Already rated" });
   }
 
   if(job){
@@ -196,7 +197,7 @@ router.post("/changeJobRating", async (req, res) => {
       .catch(err => res.status(400).json({ err }));
   }
   else{
-    res.status(400).json({ user: "User not found" });
+    return res.status(400).json({ user: "User not found" });
   }
 
 });
@@ -211,33 +212,62 @@ router.post("/changeApplicationStatus", async (req, res) => {
   try{
     if(req.body.change=="shortlist"){
       await Application.updateOne({_id: req.body.id}, {$set: {status: 1}})
+      return res.json()
     }
     else if(req.body.change=="accept"){
 
+      const date = new Date();
       const application = await Application.findById(req.body.id);
       const applications = await Application.find({'applicantId': application['applicantId']});
+      const user = await User.findById(application['applicantId']);
+      const curr_job = await Job.findById(application['jobId']);
       
       var len = applications.length;
       for(var i = 0; i<len; i++){
         const job = await Job.findById(applications[i].jobId);
         const application = await Application.findById(applications[i]['_id']);
         if(application['status'] == 2){
-          res.status(400).json({ application: "Already accepted somewhere else." });
+          return res.status(400).json({ application: "Already accepted somewhere else." });
         }
         if(application['status'] < 2){
           await Job.updateOne({'_id': applications[i].jobId}, {$inc: {currApplications: -1}});
-          await Application.updateOne({'_id':  applications[i]['_id']}, {$set: {status: 3, lastUpdated: Date.now}});
+          await Application.updateOne({'_id':  applications[i]['_id']}, {$set: {status: 3, lastUpdated: date}});
         }
       }
-      await Application.updateOne({_id: req.body.id}, {$set: {status: 2}})
+      await Application.updateOne({_id: req.body.id}, {$set: {status: 2, lastUpdated: date}})
+
+      const transport = mail.createTransport({
+        service: 'Gmail',
+        auth: {
+          user: 'ssadprajneya@gmail.com',
+          pass: 'XDFFVu4X2E9DHpcv'
+        }
+      })
+
+      // send email
+      const email = {
+        from: 'ssadprajneya@gmail.com',
+        to: user.email,
+        subject: 'Your Job Application is Accepted',
+        html: `<h1>Your job application for Job Title: ${curr_job['title']} has been accepted.</h1>`
+      }
+
+      await transport.sendMail(email, async (err) => {
+        if(err)
+          return res.status(400).json({ err })
+        else
+          return res.json()
+      })
+
+
     }
     else if(req.body.change=="reject"){
       await Application.updateOne({_id: req.body.id}, {$set: {status: 3}})
 
       const application = await Application.findById(req.body.id);
       await Job.updateOne({_id: job['_id']}, {$inc: {currApplications: -1}});
+      return res.json()
     }
-    res.json();
   }
   catch(err){
     res.status(400).json({ err });
