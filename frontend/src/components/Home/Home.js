@@ -77,16 +77,9 @@ class Home extends Component {
 						    </form>   
 						    <div className="text-center text-secondary"> or easy login with</div>
 						    <div className="text-center my-3">
-							    <button className="loginBtn loginBtn--facebook pl-5 my-1">
-								  Login with Facebook
-								</button>
 
 								<button className="loginBtn loginBtn--google pl-5 my-1">
 								  Login with Google
-								</button>
-
-								<button className="loginBtn loginBtn--twitter pl-5 my-1">
-								  Login with Twitter
 								</button>
 							</div>
 							<div className="text-center text-secondary my-5">Don't have an account yet? <a href="/register"><span className="text-primary">Create an account.</span></a></div>

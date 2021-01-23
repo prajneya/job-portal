@@ -99,16 +99,9 @@ class Register extends Component {
 						    </form>   
 						    <div className="text-center text-secondary"> or easy register with</div>
 						    <div className="text-center my-3">
-							    <button className="loginBtn loginBtn--facebook pl-5 my-1">
-								  Register with Facebook
-								</button>
 
 								<button className="loginBtn loginBtn--google pl-5 my-1">
 								  Register with Google
-								</button>
-
-								<button className="loginBtn loginBtn--twitter pl-5 my-1">
-								  Register with Twitter
 								</button>
 							</div>
 							<div className="text-center text-secondary my-5">Already have an account? <a href="/"><span className="text-primary">Sign in here.</span></a></div>
