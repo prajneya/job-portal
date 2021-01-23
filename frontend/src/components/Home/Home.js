@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { loginUser } from "../../actions/authActions";
+import Swal from 'sweetalert2';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Home.css';
@@ -25,6 +26,12 @@ class Home extends Component {
 	      	this.props.history.push("/recruiter/dashboard"); // push user to recruiter dashboard when they login
 	    }
 		if (nextProps.errors) {
+		  Swal.fire({
+			  icon: 'error',
+			  title: 'Oops...',
+			  text: 'Something went wrong!',
+			  footer: JSON.stringify(nextProps.errors)
+			})
 	      this.setState({
 	        errors: nextProps.errors
 	      });

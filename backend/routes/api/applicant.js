@@ -74,15 +74,15 @@ router.post("/addApplication", async (req, res) => {
         const application_already = await Application.findOne({applicantId: req.body.applicantId, jobId: req.body.jobId, status: { $lt: 2 }});
 
         if(application){
-          res.status(400).json({ application: "Already accepted in another job listing." });
+          return res.status(400).json({ applicationErr: "Already accepted in another job listing." });
         }
 
         if(application_already){
-          res.status(400).json({ application: "Application already sent" });
+          return res.status(400).json({ applicationErr: "Application already sent" });
         }
 
         if(applications.length>=10){
-          res.status(400).json({ application: "Number of applications exceeded." });
+          return res.status(400).json({ applicationErr: "Number of applications exceeded." });
         }
         else{
           const job = await Job.findById(req.body.jobId);
@@ -102,13 +102,13 @@ router.post("/addApplication", async (req, res) => {
                 .catch(err => res.status(400).json({ err }));
             }
             else{
-              res.status(400).json({ application: "Applications for this job is full." });
+              return res.status(400).json({ applicationErr: "Applications for this job is full." });
             }
           }
         }
     }
     else{
-      res.status(400).json({ user: "User not found!" })
+      return res.status(400).json({ userErr: "User not found!" })
     }
 });
 

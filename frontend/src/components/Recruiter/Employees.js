@@ -229,7 +229,13 @@ class Employees extends Component {
       .post("/api/applicant/changeRating", {"id": id, "rating": this.state.rating, "jobId": jobId})
       .then(async () => {
         Swal.fire('Added Rating!', '', 'success')
-      });
+      })
+      .catch(err => Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Something went wrong!',
+        footer: JSON.stringify(err.response.data)
+      }));
   }
 
   render() {
@@ -241,8 +247,6 @@ class Employees extends Component {
         firstCheck: 1
       })
     }
-
-    console.log(this.state.displayjobs)
 
     return (
 

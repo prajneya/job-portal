@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import { getPersonalSettings, getEducationalSettings, updatePersonalSettings, logoutUser } from "../../actions/authActions";
 import { getSkills } from "../../actions/jobAction";
 
+import Swal from 'sweetalert2';
 import { Navbar, Nav, NavDropdown } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from "axios";
@@ -68,6 +69,26 @@ class Profile extends Component {
   onSubmit = async e => {
       e.preventDefault();
 
+      if(this.state.name.trim()===""){
+        await Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Your name cannot be empty',
+            footer: 'Dont keep too many secrets.'
+        })
+        return;
+      }
+
+      if(this.state.email.trim()===""){
+        await Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Your email cannot be empty',
+            footer: 'Dont keep too many secrets.'
+        })
+        return;
+      }
+
       if(this.state.name===-1){
         await this.setState({
           name: this.props.auth.personal.name
@@ -85,7 +106,14 @@ class Profile extends Component {
         email: this.state.email
       };
 
-      this.props.updatePersonalSettings(userData);
+      await this.props.updatePersonalSettings(userData);
+      await Swal.fire({
+            icon: 'success',
+            title: 'Profile Settings Updated!',
+            text: 'Your settings have been updated.',
+            footer: 'Some changes may require you to log out and log in again to reflect.'
+      })
+      window.location.reload(false);
   };
 
   handlePhoto = async e => {
@@ -110,10 +138,20 @@ class Profile extends Component {
     axios
       .post('/api/users/uploadProfilePic', formData)
       .then(res => {
-        console.log(res);
+        Swal.fire({
+            icon: 'success',
+            title: 'Profile Picture Updated!',
+            text: 'Your new profile picture has been updated',
+            footer: 'You look good!'
+          })
       })
       .catch(err => {
-        console.log(err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Something went wrong!',
+          footer: JSON.stringify(err.response.data)
+        })
       });
   };
 
@@ -126,10 +164,20 @@ class Profile extends Component {
     axios
       .post('/api/applicant/uploadResume', formData)
       .then(res => {
-        console.log(res);
+        Swal.fire({
+            icon: 'success',
+            title: 'Resume Added!',
+            text: 'Your resume has been added.',
+            footer: 'This is the resume that will be sent to employers.'
+        })
       })
       .catch(err => {
-        console.log(err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Something went wrong!',
+          footer: JSON.stringify(err.response.data)
+        })
       });
   };
 
@@ -137,7 +185,28 @@ class Profile extends Component {
     document.getElementById("imageUpload").click();
   };
 
-  addInstitution = () => {
+  addInstitution = async () => {
+
+    if(this.state.institution.trim()===""){
+      await Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Institution Name cannot be empty',
+          footer: 'Dont keep too many secrets.'
+      })
+      return;
+    }
+
+    if(this.state.start.trim()===""){
+      await Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Start Year cannot be empty',
+          footer: 'Dont keep too many secrets.'
+      })
+      return;
+    }
+
     axios
       .post('/api/applicant/addInstitution', {
         "id": this.props.auth.user.id,
@@ -145,11 +214,21 @@ class Profile extends Component {
         "start": this.state.start,
         "end": this.state.end
       })
-      .then(res => {
-        console.log(res);
+      .then(async res => {
+        await Swal.fire({
+            icon: 'success',
+            title: 'Institute Added!',
+            text: 'Your institute has been added.',
+        })
+        window.location.reload(false)
       })
       .catch(err => {
-        console.log(err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Something went wrong!',
+          footer: JSON.stringify(err.response.data)
+        })
       });
   };
 
@@ -159,11 +238,21 @@ class Profile extends Component {
         "id": this.props.auth.user.id,
         "skill": this.state.selectedSkill,
       })
-      .then(res => {
-        console.log(res);
+      .then(async res => {
+        await Swal.fire({
+            icon: 'success',
+            title: 'Skill Added!',
+            text: 'Your skill has been added.',
+        })
+        window.location.reload(false)
       })
       .catch(err => {
-        console.log(err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Something went wrong!',
+          footer: JSON.stringify(err.response.data)
+        })
       });
   };
 

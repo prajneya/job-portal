@@ -33,11 +33,16 @@ class Application extends Component {
     axios
       .post("/api/jobs/viewApplication", {"id": this.props.match.params.id})
       .then(res => {
-         console.log(res.data);
          state_current.setState({
           display: res.data
         })
-      });
+      })
+      .catch(err => Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Something went wrong!',
+        footer: JSON.stringify(err.response.data)
+      }));
 
   };
 
@@ -63,7 +68,13 @@ class Application extends Component {
       .post("/api/applicant/changeJobRating", {"id": this.props.auth.user.id, "rating": this.state.rating, "jobId": jobId})
       .then(async () => {
         Swal.fire('Added Rating!', '', 'success')
-      });
+      })
+      .catch(err => Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Something went wrong!',
+        footer: JSON.stringify(err.response.data)
+      }));
   };
 
   filterApplications = (event) => {

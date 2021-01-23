@@ -35,11 +35,16 @@ class Job extends Component {
     axios
       .post("/api/jobs/viewJob", {"id": this.props.match.params.id})
       .then(res => {
-         console.log(res.data);
          state_current.setState({
           display: res.data
         })
-      });
+      })
+      .catch(err => Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Something went wrong!',
+        footer: JSON.stringify(err.response.data)
+      }));
   };
 
   sort_by_key = (array, key) => {
@@ -168,7 +173,13 @@ class Job extends Component {
         this.setState({
           displayjobs: res.data
         })
-      });
+      })
+      .catch(err => Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Something went wrong!',
+        footer: JSON.stringify(err.response.data)
+      }));
 
   };
 
@@ -180,7 +191,13 @@ class Job extends Component {
         this.setState({
           displayjobs: res.data
         })
-      });
+      })
+      .catch(err => Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Something went wrong!',
+        footer: JSON.stringify(err.response.data)
+      }));
   };
 
   applyJob = async (jobId) => {
@@ -225,8 +242,19 @@ class Job extends Component {
       axios
         .post("/api/applicant/addApplication", applicationData)
         .then(res => {
-          Swal.fire("Submitted");
-        });
+          Swal.fire({
+            icon: 'success',
+            title: 'Application Submitted',
+            text: 'Your application has now been sent to the recruiter',
+            footer: 'All the best!'
+          })
+        })
+        .catch(err => Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Something went wrong!',
+          footer: JSON.stringify(err.response.data)
+        }));
     }
   };
 

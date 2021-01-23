@@ -59,7 +59,6 @@ class Dashboard extends Component {
   };
 
   filterJobType = () => {
-    console.log(this.state.jobs)
     var ft = document.getElementById("fulltime");
     var pt = document.getElementById("parttime");
     var wfh = document.getElementById("wfh");
@@ -157,7 +156,13 @@ class Dashboard extends Component {
         this.setState({
           displayjobs: res.data
         })
-      });
+      })
+      .catch(err => Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Something went wrong!',
+        footer: JSON.stringify(err.response.data)
+      }));
 
   };
 
@@ -169,7 +174,13 @@ class Dashboard extends Component {
         this.setState({
           displayjobs: res.data
         })
-      });
+      })
+      .catch(err => Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Something went wrong!',
+        footer: JSON.stringify(err.response.data)
+      }));
   };
 
   applyJob = async (jobId) => {
@@ -214,8 +225,19 @@ class Dashboard extends Component {
       axios
         .post("/api/applicant/addApplication", applicationData)
         .then(res => {
-          Swal.fire("Submitted");
-        });
+          Swal.fire({
+            icon: 'success',
+            title: 'Application Submitted',
+            text: 'Your application has now been sent to the recruiter',
+            footer: 'All the best!'
+          })
+        })
+        .catch(err => Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Something went wrong!',
+          footer: JSON.stringify(err.response.data)
+        }));
     }
   };
 

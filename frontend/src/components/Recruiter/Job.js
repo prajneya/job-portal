@@ -38,7 +38,13 @@ class Job extends Component {
          state_current.setState({
           display: res.data
         })
-      });
+      })
+      .catch(err => Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Something went wrong!',
+        footer: JSON.stringify(err.response.data)
+      }));
 
   };
 
@@ -220,7 +226,13 @@ class Job extends Component {
         this.setState({
           displayjobs: res.data
         })
-      });
+      })
+      .catch(err => Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Something went wrong!',
+        footer: JSON.stringify(err.response.data)
+      }));
 
   };
 
@@ -232,7 +244,13 @@ class Job extends Component {
         this.setState({
           displayjobs: res.data
         })
-      });
+      })
+      .catch(err => Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Something went wrong!',
+        footer: JSON.stringify(err.response.data)
+      }));
   };
 
   jobCallback = (jobId) => {

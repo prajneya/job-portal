@@ -3,6 +3,7 @@ import { withRouter } from "react-router-dom";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { registerUser } from "../../actions/authActions";
+import Swal from 'sweetalert2';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Home.css';
@@ -22,7 +23,13 @@ class Register extends Component {
 	  }
 
 	componentWillReceiveProps(nextProps) {
-    if (nextProps.errors) {
+    if (nextProps.errors) {	
+      Swal.fire({
+			  icon: 'error',
+			  title: 'Oops...',
+			  text: 'Something went wrong!',
+			  footer: JSON.stringify(nextProps.errors)
+			})
       this.setState({
         errors: nextProps.errors
       });
@@ -64,22 +71,22 @@ class Register extends Component {
 					<div className="col-lg-4 col-md-6 login-info">
 						<div className="register-container mx-5">
 							<h1>Register</h1>
-							<form className="mt-5 mb-2" noValidate onSubmit={this.onSubmit} autoComplete="off">
+							<form className="mt-5 mb-2" onSubmit={this.onSubmit} autoComplete="off">
 							  <div className="form-group">
 						        <label htmlFor="formGroupExampleInput">Full Name</label>
-						        <input type="text" className="form-control" id="name" placeholder="Enter your full name" onChange={this.onChange} value={this.state.name} error={errors.name} />
+						        <input type="text" className="form-control" id="name" placeholder="Enter your full name" onChange={this.onChange} value={this.state.name} error={errors.name} required/>
 						      </div>
 						      <div className="form-group">
 						        <label htmlFor="formGroupExampleInput">E-mail</label>
-						        <input type="text" className="form-control" id="email" placeholder="Enter your email address" onChange={this.onChange} value={this.state.email} error={errors.email} />
+						        <input type="email" className="form-control" id="email" placeholder="Enter your email address" onChange={this.onChange} value={this.state.email} error={errors.email} required/>
 						      </div>
 						      <div className="form-group">
 						        <label htmlFor="formGroupExampleInput2">Password</label>
-						        <input type="password" className="form-control" id="password" placeholder="Enter your password" onChange={this.onChange} value={this.state.password} error={errors.password} />
+						        <input type="password" className="form-control" id="password" placeholder="Enter your password" onChange={this.onChange} value={this.state.password} error={errors.password} required/>
 						      </div>
 						      <div className="form-group">
 						        <label htmlFor="formGroupExampleInput2">Confirm Password</label>
-						        <input type="password" className="form-control" id="password2" placeholder="Repeat the above password" onChange={this.onChange} value={this.state.password2} error={errors.password2} />
+						        <input type="password" className="form-control" id="password2" placeholder="Repeat the above password" onChange={this.onChange} value={this.state.password2} error={errors.password2} required/>
 						      </div>
 						      <div className="form-group">
 						        <label htmlFor="formGroupExampleInput2">Who are you?</label>

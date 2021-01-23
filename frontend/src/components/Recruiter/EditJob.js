@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import { getPersonalSettings, getRecruiterSettings, updatePersonalSettings, logoutUser } from "../../actions/authActions";
 import { getSkills } from "../../actions/jobAction";
 
+import Swal from 'sweetalert2';
 import axios from "axios";
 import Select from 'react-select';
 
@@ -49,8 +50,78 @@ class EditJob extends Component {
       this.setState({ [e.target.id]: e.target.value });
   };
 
-  onSubmit = e => {
+  onSubmit = async e => {
     e.preventDefault();
+
+    if(this.state.deadline.trim()===""){
+      await Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Job Deadline cannot be empty',
+          footer: 'Dont keep too many secrets.'
+      })
+      return;
+    }
+
+    if(this.state.moa.trim()===""){
+      await Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Maximum number of applications cannot be empty',
+          footer: 'Dont keep too many secrets.'
+      })
+      return;
+    }
+
+    if(this.state.moa <=0 ){
+      await Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Maximum number of applications cannot be less than equal to zero',
+          footer: 'Please enter a valid input.'
+      })
+      return;
+    }
+
+    if(!(/^\d+$/.test(this.state.moa))){
+      await Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Maximum Number of applications must be a number',
+          footer: 'Please enter a valid input.'
+      })
+      return;
+    }
+
+    if(this.state.mop <=0 ){
+      await Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Maximum number of Positions cannot be less than equal to zero',
+          footer: 'Please enter a valid input.'
+      })
+      return;
+    }
+
+    if(this.state.mop.trim()===""){
+      await Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Maximum number of positions cannot be empty',
+          footer: 'Dont keep too many secrets.'
+      })
+      return;
+    }
+
+    if(!(/^\d+$/.test(this.state.mop))){
+      await Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Maximum Number of positions must be a number',
+          footer: 'Please enter a valid input.'
+      })
+      return;
+    }
 
     const jobData = {
       id: this.props.match.params.id,
@@ -61,9 +132,20 @@ class EditJob extends Component {
 
     axios
       .post("/api/jobs/edit", jobData)
-      .then(res => {
-        this.setState({
-          createdJob: true
+      .then(async res => {
+        await Swal.fire({
+          icon: 'success',
+          title: 'Job Edited!',
+          text: 'The job listing was edited successfully.',
+          footer: 'Applicants can apply any time now.'
+        })
+      })
+      .catch(err => {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Something went wrong!',
+          footer: JSON.stringify(err.response.data)
         })
       });
 

@@ -154,7 +154,13 @@ class RDashboard extends Component {
         this.setState({
           displayjobs: res.data
         })
-      });
+      })
+      .catch(err => Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Something went wrong!',
+        footer: JSON.stringify(err.response.data)
+      }));
 
   };
 
@@ -166,7 +172,13 @@ class RDashboard extends Component {
         this.setState({
           displayjobs: res.data
         })
-      });
+      })
+      .catch(err => Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Something went wrong!',
+        footer: JSON.stringify(err.response.data)
+      }));
   };
 
   jobCallback = (jobId) => {

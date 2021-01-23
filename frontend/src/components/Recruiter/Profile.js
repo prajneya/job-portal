@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { getPersonalSettings, getRecruiterSettings, updatePersonalSettings, logoutUser } from "../../actions/authActions";
-
+import Swal from 'sweetalert2';
 import { Navbar, Nav, NavDropdown } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from "axios";
@@ -60,6 +60,26 @@ class Profile extends Component {
   onSubmit = async e => {
       e.preventDefault();
 
+      if(this.state.name.trim()===""){
+        await Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Your name cannot be empty',
+            footer: 'Dont keep too many secrets.'
+        })
+        return;
+      }
+
+      if(this.state.email.trim()===""){
+        await Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Your email cannot be empty',
+            footer: 'Dont keep too many secrets.'
+        })
+        return;
+      }
+
       if(this.state.name===-1){
         await this.setState({
           name: this.props.auth.personal.name
@@ -102,11 +122,20 @@ class Profile extends Component {
 
       axios
           .post('/api/users/updateRecruiter', userData)
-          .then(res => {
-            console.log(res);
+          .then(async res => {
+            await Swal.fire({
+              icon: 'success',
+              title: 'Recruiter Settings updated!',
+              text: 'Your settings were updated successfully.',
+            })
           })
           .catch(err => {
-            console.log(err);
+            Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: 'Something went wrong!',
+              footer: JSON.stringify(err.response.data)
+            })
           });
   };
 
@@ -125,11 +154,21 @@ class Profile extends Component {
 
     axios
       .post('/api/users/uploadProfilePic', formData)
-      .then(res => {
-        console.log(res);
+       .then(res => {
+        Swal.fire({
+            icon: 'success',
+            title: 'Profile Picture Updated!',
+            text: 'Your new profile picture has been updated',
+            footer: 'You look good!'
+          })
       })
       .catch(err => {
-        console.log(err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Something went wrong!',
+          footer: JSON.stringify(err.response.data)
+        })
       });
   };
 
