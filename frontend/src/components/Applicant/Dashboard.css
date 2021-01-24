@@ -448,6 +448,11 @@
   border-radius: 50%;
 }
 
+.dropdown-menu{
+  left: auto !important;
+  right: 0 !important;
+}
+
 ul {
    line-height: 1em;
    margin: 25px 0 15px;

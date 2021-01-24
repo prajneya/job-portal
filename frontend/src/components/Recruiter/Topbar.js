@@ -23,7 +23,7 @@ class Topbar extends Component {
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ml-auto px-3">
               <Nav.Link href="/recruiter/dashboard">Dashboard</Nav.Link>
-              <NavDropdown title={user.name} id="basic-nav-dropdown">
+              <NavDropdown title={user.name} id="dropdown-menu-align-right">
                 <NavDropdown.Item href="/recruiter/profile">Profile Settings</NavDropdown.Item>
                 <NavDropdown.Item href="/recruiter/create">Create Job Listing</NavDropdown.Item>
                 <NavDropdown.Item href="/recruiter/employees">My Employees</NavDropdown.Item>
