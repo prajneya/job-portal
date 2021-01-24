@@ -107,6 +107,9 @@ router.post("/login", (req, res) => {
       return res.status(404).json({ emailnotfound: "Email not found" });
     }
     // Check password
+    if(!user.password){
+      return res.status(400).json({ user: "Please Sign In with Google" });
+    }
     bcrypt.compare(password, user.password).then(isMatch => {
       if (isMatch) {
         // User matched
@@ -137,6 +140,108 @@ router.post("/login", (req, res) => {
           .json({ passwordincorrect: "Password incorrect" });
       }
     });
+  });
+});
+
+// @route POST api/users/googleSignIn
+// @desc Login user with Google if exists, else register
+// @access Public
+router.post("/googleSignIn", (req, res) => {
+
+  const email = req.body.email;
+  // Find user by email
+  User.findOne({ email }).then(async user => {
+    // Check if user exists
+
+    if (!user) {
+      const newUser = new User({
+        name: req.body.name,
+        email: req.body.email,
+        userType: req.body.userType
+      });
+
+      await newUser
+        .save()
+        .then(user => {
+          // If applicant create applicant profile
+          if(user.userType===0){
+            const newApplicantDetail = new ApplicantDetails({
+              _id: user.id,
+              education: [],
+              skills: [],
+              resume: "",
+              profilePic: "reaper.png",
+              rating: -1,
+              ratedBy: []
+            });
+
+            newApplicantDetail
+              .save()
+              .catch(err => res.status(400).json({ err }));
+          }
+          // If recruiter create recruiter profile
+          else if(user.userType===1){
+            const newRecruiterDetail = new RecruiterDetails({
+              _id: user.id,
+              contactNum: "",
+              bio: "",
+              profilePic: "reaper.png"
+            });
+
+            newRecruiterDetail
+              .save()
+              .catch(err => res.status(400).json({ err }));
+          }
+
+          // Create JWT Payload
+          const payload = {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            userType: user.userType
+          };
+          // Sign token
+          jwt.sign(
+            payload,
+            keys.secretOrKey,
+            {
+              expiresIn: 31556926 // 1 year in seconds
+            },
+            (err, token) => {
+              res.json({
+                success: true,
+                token: "Bearer " + token
+              });
+            }
+          );
+
+
+        })
+        .catch(err => res.status(400).json({ err }));
+    }
+    else{
+      // Create JWT Payload
+      const payload = {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        userType: user.userType
+      };
+      // Sign token
+      jwt.sign(
+        payload,
+        keys.secretOrKey,
+        {
+          expiresIn: 31556926 // 1 year in seconds
+        },
+        (err, token) => {
+          res.json({
+            success: true,
+            token: "Bearer " + token
+          });
+        }
+      );
+    }
   });
 });
 
@@ -179,23 +284,48 @@ router.post("/updatePersonal", async (req, res) => {
 
   if(user){
     if(user['userType']==0){
-      User.updateOne({_id: req.body.id}, {$set: {name: req.body.name, email: req.body.email}})
-        .then(userDetail => res.json(userDetail))
-        .catch(err => res.status(400).json({ err }));
+      const curr_user = await User.find({email: req.body.email})
+
+      if(curr_user.length>1){
+        return res.status(400).json({ emailError: "Email already exists!" })
+      }
+
+      if(!user.password){
+        User.updateOne({_id: req.body.id}, {$set: {name: req.body.name}})
+          .then(userDetail => res.json({'warning': 'You cannot change your email since you signed in with Google'}))
+          .catch(err => res.status(400).json({ err }));
+      }
+      else{
+        User.updateOne({_id: req.body.id}, {$set: {name: req.body.name, email: req.body.email}})
+          .then(userDetail => res.json(userDetail))
+          .catch(err => res.status(400).json({ err }));
+      }
     }
     else if(user['userType']==1){
-      await User.updateOne({_id: req.body.id}, {$set: {name: req.body.name, email: req.body.email}})
-        .then(userDetail => res.json(userDetail))
-        .catch(err => res.status(400).json({ err }));
+      const curr_user = await User.find({email: req.body.email})
 
-      await Job.updateMany({createdBy: req.body.id}, {$set: {name: req.body.name, email: req.body.email}})
+      if(curr_user.length>1){
+        return res.status(400).json({ emailError: "Email already exists!" })
+      }
+      if(!user.password){
+        User.updateOne({_id: req.body.id}, {$set: {name: req.body.name}})
+          .then(userDetail => res.json({'warning': 'You cannot change your email since you signed in with Google'}))
+          .catch(err => res.status(400).json({ err }));
+      }
+      else{
+        User.updateOne({_id: req.body.id}, {$set: {name: req.body.name, email: req.body.email}})
+          .then(userDetail => res.json(userDetail))
+          .catch(err => res.status(400).json({ err }));
+
+        await Job.updateMany({createdBy: req.body.id}, {$set: {name: req.body.name, email: req.body.email}})
+      }
     }
     else{
-      res.status(400).json({ userError: "User type invalid!" })
+      return res.status(400).json({ userError: "User type invalid!" })
     }
   }
   else{
-    res.status(400).json({ userError: "User not found!" })
+    return res.status(400).json({ userError: "User not found!" })
   }
 
 });

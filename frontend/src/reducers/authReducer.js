@@ -1,4 +1,5 @@
 import { SET_CURRENT_USER, USER_LOADING, GET_PROFILE, GET_APPLICANT_PROFILE, GET_RECRUITER_PROFILE, UPDATE_PERSONAL_SETTINGS } from "../actions/types";
+import Swal from 'sweetalert2';
 
 const isEmpty = require("is-empty");
 const initialState = {
@@ -39,6 +40,12 @@ export default function(state = initialState, action) {
         recruiter: action.payload
       };
     case UPDATE_PERSONAL_SETTINGS:
+      Swal.fire({
+        icon: 'success',
+        title: 'Profile Settings updated',
+        text: 'Some changes might reflect after logging in again.',
+        footer: 'If you logged in with Google, you cannot change your email.'
+      });
       return {
         ...state
         

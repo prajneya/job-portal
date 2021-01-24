@@ -151,7 +151,7 @@ class Dashboard extends Component {
     e.preventDefault();
 
     axios
-      .post("/api/jobs/searchJobs", {"query": this.state.search})
+      .post("/api/jobs/searchJobs", {userId: this.props.auth.user.id, "query": this.state.search})
       .then(res => {
         this.setState({
           displayjobs: res.data
@@ -161,7 +161,7 @@ class Dashboard extends Component {
         icon: 'error',
         title: 'Oops...',
         text: 'Something went wrong!',
-        footer: JSON.stringify(err.response.data)
+        footer: JSON.stringify(err)
       }));
 
   };
@@ -169,7 +169,7 @@ class Dashboard extends Component {
   onChange = async e => {
     await this.setState({ [e.target.id]: e.target.value });
     axios
-      .post("/api/jobs/searchJobs", {"query": this.state.search})
+      .post("/api/jobs/searchJobs", {userId: this.props.auth.user.id, "query": this.state.search})
       .then(res => {
         this.setState({
           displayjobs: res.data
@@ -179,7 +179,7 @@ class Dashboard extends Component {
         icon: 'error',
         title: 'Oops...',
         text: 'Something went wrong!',
-        footer: JSON.stringify(err.response.data)
+        footer: JSON.stringify(err)
       }));
   };
 

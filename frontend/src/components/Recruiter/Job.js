@@ -707,7 +707,7 @@ class Job extends Component {
                                   <th scope="row" className="text-center pt-3">{index+1}</th>
                                   <td className="text-center pt-3">{application['applicant']['name']}</td>
                                   <td className="text-center pt-3">{application['application']['createdAt']}</td>
-                                  <td className="text-center pt-3">{application['applicantDets']['rating'] == -1 ? "UNRATED" : application['applicantDets']['rating']}</td>
+                                  <td className="text-center pt-3">{application['applicantDets']['rating'] == -1 ? "UNRATED" : application['applicantDets']['rating']/application['applicantDets']['ratedBy'].length}</td>
                                   <td className="text-center"><button className="btn btn-info" onClick={() => this.viewApplication(application['applicant'], application['application'], application['applicantDets'])}>VIEW APPLICATION</button></td>
                                 </tr>
                                 ))}

@@ -97,13 +97,6 @@ class Register extends Component {
 						      </div>
 						      <button type="submit" className="btn btn-primary w-100 my-2 py-3 getin-button">Sign Up</button>
 						    </form>   
-						    <div className="text-center text-secondary"> or easy register with</div>
-						    <div className="text-center my-3">
-
-								<button className="loginBtn loginBtn--google pl-5 my-1">
-								  Register with Google
-								</button>
-							</div>
 							<div className="text-center text-secondary my-5">Already have an account? <a href="/"><span className="text-primary">Sign in here.</span></a></div>
 						</div>
 					</div>

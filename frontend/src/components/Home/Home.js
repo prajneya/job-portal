@@ -3,6 +3,10 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { loginUser } from "../../actions/authActions";
 import Swal from 'sweetalert2';
+import GoogleLogin from 'react-google-login';
+import axios from 'axios';
+import setAuthToken from "../../utils/setAuthToken";
+import jwt_decode from "jwt-decode";
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Home.css';
@@ -52,6 +56,55 @@ class Home extends Component {
 		this.props.loginUser(userData);
 	};
 
+	responseSuccessApplicantGoogle = async (response) => {
+	  console.log(response);
+
+	  await axios.post('api/users/googleSignIn', {name: response.profileObj.name, email: response.profileObj.email, userType: 0})
+	  		.then(res => {
+	  			if(res.data['success']){
+	  				const { token } = res.data;
+			     	localStorage.setItem("jwtToken", token);
+			      	setAuthToken(token);
+			      	const decoded = jwt_decode(token);
+			      	console.log("Decoded token", decoded)
+					this.props.history.push("/dashboard")
+	  			}
+	  		})
+	  		.catch(err => Swal.fire({
+			  icon: 'error',
+			  title: 'Oops...',
+			  text: 'Something went wrong!',
+			  footer: JSON.stringify(err)
+			}));
+		window.location.reload(false);
+	};
+
+	responseSuccessRecruiterGoogle = async (response) => {
+	  console.log(response);
+	  await axios.post('api/users/googleSignIn', {name: response.profileObj.name, email: response.profileObj.email, userType: 1})
+	  		.then(res => {
+	  			if(res.data['success']){
+	  				const { token } = res.data;
+			     	localStorage.setItem("jwtToken", token);
+			      	setAuthToken(token);
+			      	const decoded = jwt_decode(token);
+			      	console.log("Decoded token", decoded)
+					this.props.history.push("/recruiter/dashboard")
+	  			}
+	  		})
+	  		.catch(err => Swal.fire({
+			  icon: 'error',
+			  title: 'Oops...',
+			  text: 'Something went wrong!',
+			  footer: JSON.stringify(err)
+			}));
+		window.location.reload(false);
+	};
+
+	responseFailureGoogle = (response) => {
+	  console.log("FAILURE", response);
+	}
+
 	render() {
 
 		const { errors } = this.state;
@@ -77,10 +130,20 @@ class Home extends Component {
 						    </form>   
 						    <div className="text-center text-secondary"> or easy login with</div>
 						    <div className="text-center my-3">
-
-								<button className="loginBtn loginBtn--google pl-5 my-1">
-								  Login with Google
-								</button>
+								<GoogleLogin
+								    clientId="277600011274-f18q9tvl6gdct1fdk1dfuumc4mkbmrdp.apps.googleusercontent.com"
+								    buttonText="Login with Google as Applicant "
+								    onSuccess={this.responseSuccessApplicantGoogle}
+								    onFailure={this.responseFailureGoogle}
+								    cookiePolicy={'single_host_origin'}
+								/> &nbsp;
+								<GoogleLogin
+								    clientId="277600011274-f18q9tvl6gdct1fdk1dfuumc4mkbmrdp.apps.googleusercontent.com"
+								    buttonText="Login with Google as Recruiter "
+								    onSuccess={this.responseSuccessRecruiterGoogle}
+								    onFailure={this.responseFailureGoogle}
+								    cookiePolicy={'single_host_origin'}
+								/>
 							</div>
 							<div className="text-center text-secondary my-5">Don't have an account yet? <a href="/register"><span className="text-primary">Create an account.</span></a></div>
 						</div>

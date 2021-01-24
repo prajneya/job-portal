@@ -78,8 +78,7 @@ router.post("/getAll", async (req, res) => {
     for(var i = 0; i<len; i++){
       var temp_data = {};
       temp_data['job'] = jobs[i];
-      const application = await Application.find({applicantId: req.body.userId, jobId: jobs[i]['_id'], status: { $lt: 2 }});
-      console.log(application)
+      const application = await Application.find({applicantId: req.body.userId, jobId: jobs[i]['_id'], status: { $lt: 3 }});
       if(application.length!=0){
         temp_data['hasApplied'] = true;
       }
@@ -134,7 +133,26 @@ router.post("/searchJobs", (req, res) => {
                     ];
 
     Job.aggregate(pipeline)
-        .then(jobs => res.json(jobs))
+        .then(async jobs => {
+          const date = new Date();
+          const data = []
+          var len = jobs.length;
+
+          for(var i = 0; i<len; i++){
+            var temp_data = {};
+            temp_data['job'] = jobs[i];
+            const application = await Application.find({applicantId: req.body.userId, jobId: jobs[i]['_id'], status: { $lt: 3 }});
+            if(application.length!=0){
+              temp_data['hasApplied'] = true;
+            }
+            else{
+              temp_data['hasApplied'] = false;
+            }
+            data.push(temp_data);
+          }
+
+          res.json(data);
+        })
         .catch(err => res.status(400).json({ err }));
 });
 
@@ -155,7 +173,7 @@ router.post("/viewJob", async (req, res) => {
 
   try{
     job = await Job.findById(req.body.id);
-    applications = await Application.find({jobId: req.body.id, status: { $lt: 3 }});
+    applications = await Application.find({jobId: req.body.id, status: { $lt: 2 }});
       
     var len = applications.length;
     var data = {

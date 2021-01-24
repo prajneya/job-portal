@@ -249,7 +249,7 @@ router.post("/changeApplicationStatus", async (req, res) => {
         from: 'ssadprajneya@gmail.com',
         to: user.email,
         subject: 'Your Job Application is Accepted',
-        html: `<h1>Your job application for Job Title: ${curr_job['title']} has been accepted.</h1>`
+        html: `<h1>Your job application for Job Title: ${curr_job['title']} has been accepted by ${curr_job['name']}</h1>`
       }
 
       await transport.sendMail(email, async (err) => {
